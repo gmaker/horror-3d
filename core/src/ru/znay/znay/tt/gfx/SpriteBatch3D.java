@@ -10,25 +10,31 @@ import com.badlogic.gdx.utils.NumberUtils;
 /**
  * Created by admin on 19.06.2016.
  */
-class DepthSpriteBatch {
+public class SpriteBatch3D {
 
     @Deprecated
     public static Mesh.VertexDataType defaultVertexDataType = Mesh.VertexDataType.VertexArray;
 
-    static final int VERTEX_SIZE = 2 + 1 + 2;
-    static final int SPRITE_SIZE = 4 * VERTEX_SIZE;
+    /*
 
+        x, y, z,
+        color,
+        u, v,
+        xo, yo
+
+     */
+    static final int VERTEX_SIZE = 3 + 1 + 2 + 2;
+    static final int SPRITE_SIZE = 4 * VERTEX_SIZE;
     private Mesh mesh;
 
     final float[] vertices;
     int idx = 0;
-    Texture lastTexture = null;
-    float invTexWidth = 0, invTexHeight = 0;
 
     boolean drawing = false;
 
-    private final Matrix4 transformMatrix = new Matrix4();
-    private final Matrix4 projectionMatrix = new Matrix4();
+    private final Matrix4 modelMatrix = new Matrix4();
+    private final Matrix4 projectMatrix = new Matrix4();
+    private final Matrix4 viewMatrix = new Matrix4();
 
     private final ShaderProgram shader;
 
@@ -39,18 +45,17 @@ class DepthSpriteBatch {
     public int totalRenderCalls = 0;
     public int maxSpritesInBatch = 0;
 
-    public DepthSpriteBatch(int size, ShaderProgram shader) {
-        // 32767 is max index, so 32767 / 6 - (32767 / 6 % 3) = 5460.
-        if (size > 5460) throw new IllegalArgumentException("Can't have more than 5460 sprites per batch: " + size);
+    public SpriteBatch3D(int size, ShaderProgram shader) {
+        // 32767 is max index, so 32767 / 8 - (32767 / 8 % 3) = 4095.
+        if (size > 4095) throw new IllegalArgumentException("Can't have more than 4095 sprites per batch: " + size);
 
         Mesh.VertexDataType vertexDataType = (Gdx.gl30 != null) ? Mesh.VertexDataType.VertexBufferObjectWithVAO : defaultVertexDataType;
 
         mesh = new Mesh(vertexDataType, false, size * 4, size * 6,
-                new VertexAttribute(VertexAttributes.Usage.Position, 2, ShaderProgram.POSITION_ATTRIBUTE),
-                new VertexAttribute(VertexAttributes.Usage.ColorPacked, 4, ShaderProgram.COLOR_ATTRIBUTE),
-                new VertexAttribute(VertexAttributes.Usage.TextureCoordinates, 2, ShaderProgram.TEXCOORD_ATTRIBUTE));
-
-        projectionMatrix.setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+                new VertexAttribute(0x01, 3, "a_pos"),
+                new VertexAttribute(0x04, 4, "a_col"),
+                new VertexAttribute(0x02, 2, "a_uv"),
+                new VertexAttribute(0x08, 2, "a_offs"));
 
         vertices = new float[size * SPRITE_SIZE];
 
@@ -58,7 +63,7 @@ class DepthSpriteBatch {
         short[] indices = new short[len];
         short j = 0;
         for (int i = 0; i < len; i += 6, j += 4) {
-            indices[i] = j;
+            indices[i + 0] = j;
             indices[i + 1] = (short) (j + 1);
             indices[i + 2] = (short) (j + 2);
             indices[i + 3] = (short) (j + 2);
@@ -69,8 +74,12 @@ class DepthSpriteBatch {
         this.shader = shader;
     }
 
+    public void setFogColor(float r, float g, float b) {
+        shader.setUniform3fv("u_fogColor", new float[]{r, g, b}, 0, 3);
+    }
+
     public void begin() {
-        if (drawing) throw new IllegalStateException("SpriteBatch.end must be called before begin.");
+        if (drawing) throw new IllegalStateException("SpriteBatch3D.end must be called before begin.");
         renderCalls = 0;
 
         shader.begin();
@@ -80,9 +89,7 @@ class DepthSpriteBatch {
     }
 
     public void end() {
-        if (!drawing) throw new IllegalStateException("SpriteBatch.begin must be called before end.");
-        if (idx > 0) flush();
-        lastTexture = null;
+        if (!drawing) throw new IllegalStateException("SpriteBatch3D.begin must be called before end.");
         drawing = false;
 
         shader.end();
@@ -115,26 +122,17 @@ class DepthSpriteBatch {
         return color;
     }
 
-    protected void draw(TextureRegion region, float x, float y, float offset) {
-        draw(region, x, y, region.getRegionWidth(), region.getRegionHeight(), offset);
+    public void addSprite(float x, float y, float z, int sprite) {
+        addSprite(x, y, z, -Art.SPRITE_SIZE / 2, -Art.SPRITE_SIZE / 2, sprite);
     }
 
-    protected void draw(TextureRegion region, float x, float y, float width, float height, float offset) {
-        if (!drawing) throw new IllegalStateException("SpriteBatch.begin must be called before draw.");
-
-
+    public void addSprite(float x, float y, float z, float xo, float yo, int sprite) {
         float[] vertices = this.vertices;
 
-        Texture texture = region.getTexture();
-        if (texture != lastTexture) {
-            switchTexture(texture);
-        } else if (idx == vertices.length)
-            flush();
+        TextureRegion region = Art.i.sprites[sprite];
 
-        x += offset;
-        y += offset;
-        final float fx2 = x + width - offset * 2.0f;
-        final float fy2 = y + height - offset * 2.0f;
+        final float w = region.getRegionWidth();
+        final float h = region.getRegionHeight();
         final float u = region.getU();
         final float v = region.getV2();
         final float u2 = region.getU2();
@@ -144,104 +142,93 @@ class DepthSpriteBatch {
         int idx = this.idx;
         vertices[idx++] = x;
         vertices[idx++] = y;
+        vertices[idx++] = z;
         vertices[idx++] = color;
         vertices[idx++] = u;
         vertices[idx++] = v;
+        vertices[idx++] = xo + 0;
+        vertices[idx++] = yo + 0;
 
         vertices[idx++] = x;
-        vertices[idx++] = fy2;
+        vertices[idx++] = y;
+        vertices[idx++] = z;
         vertices[idx++] = color;
         vertices[idx++] = u;
         vertices[idx++] = v2;
+        vertices[idx++] = xo + 0;
+        vertices[idx++] = yo + h;
 
-        vertices[idx++] = fx2;
-        vertices[idx++] = fy2;
+        vertices[idx++] = x;
+        vertices[idx++] = y;
+        vertices[idx++] = z;
         vertices[idx++] = color;
         vertices[idx++] = u2;
         vertices[idx++] = v2;
+        vertices[idx++] = xo + w;
+        vertices[idx++] = yo + h;
 
-        vertices[idx++] = fx2;
+        vertices[idx++] = x;
         vertices[idx++] = y;
+        vertices[idx++] = z;
         vertices[idx++] = color;
         vertices[idx++] = u2;
         vertices[idx++] = v;
+        vertices[idx++] = xo + h;
+        vertices[idx++] = yo + 0;
         this.idx = idx;
     }
 
-    public void flush() {
+    public void render() {
         if (idx == 0) return;
 
         renderCalls++;
         totalRenderCalls++;
-        int spritesInBatch = idx / 20;
+        int spritesInBatch = idx / SPRITE_SIZE;
         if (spritesInBatch > maxSpritesInBatch) maxSpritesInBatch = spritesInBatch;
         int count = spritesInBatch * 6;
 
-        lastTexture.bind();
+        Art.i.sheet.bind();
         Mesh mesh = this.mesh;
         mesh.setVertices(vertices, 0, idx);
         mesh.getIndicesBuffer().position(0);
         mesh.getIndicesBuffer().limit(count);
 
         mesh.render(shader, GL20.GL_TRIANGLES, 0, count);
+    }
 
+    public void reset() {
         idx = 0;
+    }
+
+    public void renderAndReset() {
+        render();
+        reset();
     }
 
     public void dispose() {
         mesh.dispose();
     }
 
-    public Matrix4 getProjectionMatrix() {
-        return projectionMatrix;
-    }
-
-    public Matrix4 getTransformMatrix() {
-        return transformMatrix;
-    }
-
-    public void setProjectionMatrix(Matrix4 projection) {
-        if (drawing) flush();
-        projectionMatrix.set(projection);
+    public void setProjectMatrix(Matrix4 project) {
+        projectMatrix.set(project);
         if (drawing) setupMatrices();
     }
 
-    public void setTransformMatrix(Matrix4 transform) {
-        if (drawing) flush();
-        transformMatrix.set(transform);
+    public void setViewMatrix(Matrix4 view) {
+        viewMatrix.set(view);
+        if (drawing) setupMatrices();
+    }
+
+    public void setModelMatrix(Matrix4 model) {
+        modelMatrix.set(model);
         if (drawing) setupMatrices();
     }
 
     private void setupMatrices() {
-        shader.setUniformMatrix("u_projectionMatrix", projectionMatrix);
-        shader.setUniformMatrix("u_transformMatrix", transformMatrix);
+        shader.setUniformMatrix("u_projectMatrix", projectMatrix);
+        shader.setUniformMatrix("u_viewMatrix", viewMatrix);
+        shader.setUniformMatrix("u_modelMatrix", modelMatrix);
         shader.setUniformi("u_texture", 0);
-    }
-
-    protected void switchTexture(Texture texture) {
-        flush();
-        lastTexture = texture;
-        invTexWidth = 1.0f / texture.getWidth();
-        invTexHeight = 1.0f / texture.getHeight();
-    }
-
-    public void setShader(ShaderProgram shader) {
-        if (drawing) {
-            flush();
-            this.shader.end();
-        }
-        if (drawing) {
-            this.shader.begin();
-            setupMatrices();
-        }
-    }
-
-    public ShaderProgram getShader() {
-        return shader;
-    }
-
-    public boolean isDrawing() {
-        return drawing;
     }
 }
 

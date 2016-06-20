@@ -12,7 +12,8 @@ public class Art {
     public static final int SPRITE_SIZE = 16;
     public Texture sheet = new Texture(Gdx.files.internal("sheet.png"));
     public TextureRegion[] sprites;
-    public ShaderProgram quadShader;
+    public ShaderProgram spriteShader;
+    public ShaderProgram billboardShader;
 
     public static Art i = new Art();
 
@@ -32,14 +33,20 @@ public class Art {
             }
         }
         ShaderProgram.pedantic = false;
-        quadShader = new ShaderProgram(Gdx.files.internal("quad.vert"), Gdx.files.internal("quad.frag"));
-        if (!quadShader.isCompiled()) {
-            System.out.println(quadShader.getLog());
+        spriteShader = new ShaderProgram(Gdx.files.internal("sprite.vert"), Gdx.files.internal("sprites.frag"));
+        if (!spriteShader.isCompiled()) {
+            System.out.println(spriteShader.getLog());
+        }
+
+        billboardShader = new ShaderProgram(Gdx.files.internal("billboard.vert"), Gdx.files.internal("sprites.frag"));
+        if (!billboardShader.isCompiled()) {
+            System.out.println(billboardShader.getLog());
         }
     }
 
     public void dispose() {
         sheet.dispose();
-        quadShader.dispose();
+        spriteShader.dispose();
+        billboardShader.dispose();
     }
 }

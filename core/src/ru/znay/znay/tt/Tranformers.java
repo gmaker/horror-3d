@@ -8,14 +8,15 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.math.Vector3;
 import ru.znay.znay.tt.gfx.Art;
-import ru.znay.znay.tt.gfx.Quad;
+import ru.znay.znay.tt.gfx.SpriteBatch3D;
 
 import java.util.Random;
 
 public class Tranformers extends Game {
     PerspectiveCamera camera;
 
-    Quad quad;
+    SpriteBatch3D sprites;
+    SpriteBatch3D billboards;
     private Color fogColor = new Color(0.1f, 0.2f, 0.0f, 1.0f);
     private float rotY = 0.0f;
     private int tickTime = 0;
@@ -26,11 +27,11 @@ public class Tranformers extends Game {
 
         camera = new PerspectiveCamera(60.0f, C.WIDTH, C.HEIGHT);
         camera.position.set(0, 0, 50);
-        // camera.lookAt(0, 8.0f, 0);
         camera.near = 1f;
-        camera.far = 200f;
+        camera.far = 2000f;
         camera.update();
-        quad = new Quad(1000, Art.i.quadShader);
+        sprites = new SpriteBatch3D(3000, Art.i.spriteShader);
+        billboards = new SpriteBatch3D(3000, Art.i.billboardShader);
 
         Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
         Gdx.gl.glDepthFunc(GL20.GL_LESS);
@@ -41,6 +42,32 @@ public class Tranformers extends Game {
         //Gdx.gl.glEnable(GL20.GL_CULL_FACE);
         //Gdx.gl.glCullFace(GL20.GL_FRONT);
         Gdx.gl.glColorMask(true, true, true, false);
+        for (int z = 0; z < 32; z++) {
+            for (int x = 0; x < 16; x++) {
+                random.setSeed(x * 124124L + z * 1234124L + 1288127L);
+                float xo = (random.nextFloat() * 2.0f - 1.0f) * 4.0f;
+                float yo = (random.nextFloat() * 2.0f - 1.0f) * 2.0f;
+                float zo = (random.nextFloat() * 2.0f - 1.0f) * 4.0f;
+                float r = 1.0f - (random.nextFloat() * 0.1f);
+                float g = 1.0f - (random.nextFloat() * 0.1f);
+                float b = 1.0f - (random.nextFloat() * 0.2f);
+                billboards.setColor(r, g, b, 1.0f);
+                billboards.addSprite(x * 32 + xo, -8 + yo, z * 8 + zo, 0 + 1 * 8);
+                billboards.addSprite(x * 32 + 16 + xo, -8 + yo, z * 8 + zo, 1 + 1 * 8);
+            }
+        }
+
+        for (int i = 0; i < 32; i++) {
+            for (int z = 0; z < 2; z++) {
+                if (z == 0) {
+                    sprites.addSprite(i * 16, 0, z * 16, 0);
+                } else {
+                    if (i % 2 == 0)
+                        billboards.addSprite(i * 16, 0, z * 16, 1);
+                }
+
+            }
+        }
     }
 
     private Random random = new Random();
@@ -51,40 +78,29 @@ public class Tranformers extends Game {
         Gdx.gl.glClearColor(fogColor.r, fogColor.g, fogColor.b, fogColor.a);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
+        sprites.setFogColor(fogColor.r, fogColor.g, fogColor.b);
+        sprites.setProjectMatrix(camera.projection);
+        sprites.setViewMatrix(camera.view);
 
-        quad.setProjectionMatrix(camera.combined);
-        quad.begin();
-        quad.setFogColor(fogColor.r, fogColor.g, fogColor.b);
+        billboards.setFogColor(fogColor.r, fogColor.g, fogColor.b);
+        billboards.setProjectMatrix(camera.projection);
+        billboards.setViewMatrix(camera.view);
 
 
-        for (int z = 0; z < 64; z++) {
-            for (int x = 0; x < 64; x++) {
-                random.setSeed(x * 124124L + z * 1234124L + 1288127L);
-                float xo = (random.nextFloat() * 2.0f - 1.0f) * 4.0f;
-                float yo = (random.nextFloat() * 2.0f - 1.0f) * 2.0f;
-                float zo = (random.nextFloat() * 2.0f - 1.0f) * 4.0f;
-
-                quad.render(camera, x * 32 + xo, -8 + yo, z * 8 + zo, 0 + 1 * 8);
-                quad.render(camera, x * 32 + 16 + xo, -8 + yo, z * 8 + zo, 1 + 1 * 8);
-            }
-        }
-
-        for (int i = 0; i < 16; i++) {
-            for (int z = 0; z < 2; z++) {
-                if (z == 0) {
-                    quad.render(camera, i * 16, 0, z * 16, 0);
-                } else {
-                    if (i % 2 == 0)
-                        quad.renderBillboard(camera, i * 16, 0, z * 16, 1);
-                }
-
-            }
-        }
-
-        quad.end();
+        sprites.begin();
+        sprites.render();
+        sprites.end();
         if (tickTime % 60 == 0) {
-            System.out.println(quad.renderCalls);
+            System.out.println("sprites.renderCalls:" + sprites.renderCalls);
         }
+
+        billboards.begin();
+        billboards.render();
+        billboards.end();
+        if (tickTime % 30 == 0) {
+            System.out.println("billboards.renderCalls:" + billboards.renderCalls);
+        }
+
 
         float xa = 0.0f;
         float za = 0.0f;
@@ -105,6 +121,7 @@ public class Tranformers extends Game {
     public void dispose() {
         super.dispose();
         Art.i.dispose();
-        quad.dispose();
+        sprites.dispose();
+        billboards.dispose();
     }
 }
