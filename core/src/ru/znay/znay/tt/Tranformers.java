@@ -17,7 +17,7 @@ public class Tranformers extends Game {
 
     SpriteBatch3D sprites;
     SpriteBatch3D billboards;
-    private Color fogColor = new Color(0.1f, 0.2f, 0.0f, 1.0f);
+    private Color fogColor = new Color(0.5f, 0.1f, 0.1f, 1.0f);
     private float rotY = 0.0f;
     private int tickTime = 0;
 
@@ -75,14 +75,14 @@ public class Tranformers extends Game {
     @Override
     public void render() {
         tickTime++;
-        Gdx.gl.glClearColor(fogColor.r, fogColor.g, fogColor.b, fogColor.a);
+        Gdx.gl.glClearColor(0, 0, 0, 0);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
-        sprites.setFogColor(fogColor.r, fogColor.g, fogColor.b);
+        sprites.setFogColor(fogColor);
         sprites.setProjectMatrix(camera.projection);
         sprites.setViewMatrix(camera.view);
 
-        billboards.setFogColor(fogColor.r, fogColor.g, fogColor.b);
+        billboards.setFogColor(fogColor);
         billboards.setProjectMatrix(camera.projection);
         billboards.setViewMatrix(camera.view);
 

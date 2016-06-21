@@ -44,6 +44,7 @@ public class SpriteBatch3D {
     public int renderCalls = 0;
     public int totalRenderCalls = 0;
     public int maxSpritesInBatch = 0;
+    public Color fogColor;
 
     public SpriteBatch3D(int size, ShaderProgram shader) {
         // 32767 is max index, so 32767 / 8 - (32767 / 8 % 3) = 4095.
@@ -74,8 +75,8 @@ public class SpriteBatch3D {
         this.shader = shader;
     }
 
-    public void setFogColor(float r, float g, float b) {
-        shader.setUniform3fv("u_fogColor", new float[]{r, g, b}, 0, 3);
+    public void setFogColor(Color fogColor) {
+        this.fogColor = fogColor;
     }
 
     public void begin() {
@@ -83,7 +84,7 @@ public class SpriteBatch3D {
         renderCalls = 0;
 
         shader.begin();
-        setupMatrices();
+        setupUniforms();
 
         drawing = true;
     }
@@ -211,20 +212,21 @@ public class SpriteBatch3D {
 
     public void setProjectMatrix(Matrix4 project) {
         projectMatrix.set(project);
-        if (drawing) setupMatrices();
+        if (drawing) setupUniforms();
     }
 
     public void setViewMatrix(Matrix4 view) {
         viewMatrix.set(view);
-        if (drawing) setupMatrices();
+        if (drawing) setupUniforms();
     }
 
     public void setModelMatrix(Matrix4 model) {
         modelMatrix.set(model);
-        if (drawing) setupMatrices();
+        if (drawing) setupUniforms();
     }
 
-    private void setupMatrices() {
+    private void setupUniforms() {
+        shader.setUniform3fv("u_fogColor", new float[]{fogColor.r, fogColor.g, fogColor.b}, 0, 3);
         shader.setUniformMatrix("u_projectMatrix", projectMatrix);
         shader.setUniformMatrix("u_viewMatrix", viewMatrix);
         shader.setUniformMatrix("u_modelMatrix", modelMatrix);
