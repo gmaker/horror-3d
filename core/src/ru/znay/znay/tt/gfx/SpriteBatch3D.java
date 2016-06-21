@@ -5,6 +5,8 @@ import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.utils.NumberUtils;
 
 /**
@@ -32,7 +34,6 @@ public class SpriteBatch3D {
 
     boolean drawing = false;
 
-    private final Matrix4 modelMatrix = new Matrix4();
     private final Matrix4 projectMatrix = new Matrix4();
     private final Matrix4 viewMatrix = new Matrix4();
 
@@ -45,6 +46,7 @@ public class SpriteBatch3D {
     public int totalRenderCalls = 0;
     public int maxSpritesInBatch = 0;
     public Color fogColor;
+    public BoundingBox bb = new BoundingBox();
 
     public SpriteBatch3D(int size, ShaderProgram shader) {
         // 32767 is max index, so 32767 / 8 - (32767 / 8 % 3) = 4095.
@@ -84,7 +86,6 @@ public class SpriteBatch3D {
         renderCalls = 0;
 
         shader.begin();
-        setupUniforms();
 
         drawing = true;
     }
@@ -124,20 +125,26 @@ public class SpriteBatch3D {
     }
 
     public void addSprite(float x, float y, float z, int sprite) {
-        addSprite(x, y, z, -Art.SPRITE_SIZE / 2, -Art.SPRITE_SIZE / 2, sprite);
+        addSprite(x, y, z, (sprite % 8) * 16, (sprite / 8) * 16, 16, 16);
     }
 
-    public void addSprite(float x, float y, float z, float xo, float yo, int sprite) {
+    public void addSprite(float x, float y, float z, float sx, float sy, float w, float h) {
+
         float[] vertices = this.vertices;
 
-        TextureRegion region = Art.i.sprites[sprite];
+        Texture texture = Art.i.sheet;
 
-        final float w = region.getRegionWidth();
-        final float h = region.getRegionHeight();
-        final float u = region.getU();
-        final float v = region.getV2();
-        final float u2 = region.getU2();
-        final float v2 = region.getV();
+        final float xo = -w / 2.0f;
+        final float yo = -h / 2.0f;
+        bb.ext(new Vector3(x, y, z));
+
+        final float invTexWidth = 1f / texture.getWidth();
+        final float invTexHeight = 1f / texture.getHeight();
+
+        final float u = sx * invTexWidth;
+        final float u2 = (sx + w) * invTexWidth;
+        final float v = (sy + h) * invTexHeight;
+        final float v2 = sy * invTexHeight;
 
         float color = this.color;
         int idx = this.idx;
@@ -174,13 +181,19 @@ public class SpriteBatch3D {
         vertices[idx++] = color;
         vertices[idx++] = u2;
         vertices[idx++] = v;
-        vertices[idx++] = xo + h;
+        vertices[idx++] = xo + w;
         vertices[idx++] = yo + 0;
         this.idx = idx;
     }
 
-    public void render() {
+    public void render(Matrix4 modelMatrix) {
         if (idx == 0) return;
+
+        shader.setUniform3fv("u_fogColor", new float[]{fogColor.r, fogColor.g, fogColor.b}, 0, 3);
+        shader.setUniformMatrix("u_projectMatrix", projectMatrix);
+        shader.setUniformMatrix("u_viewMatrix", viewMatrix);
+        shader.setUniformMatrix("u_modelMatrix", modelMatrix);
+        shader.setUniformi("u_texture", 0);
 
         renderCalls++;
         totalRenderCalls++;
@@ -199,10 +212,11 @@ public class SpriteBatch3D {
 
     public void reset() {
         idx = 0;
+        bb.clr();
     }
 
-    public void renderAndReset() {
-        render();
+    public void renderAndReset(Matrix4 modelMatrix) {
+        render(modelMatrix);
         reset();
     }
 
@@ -212,25 +226,10 @@ public class SpriteBatch3D {
 
     public void setProjectMatrix(Matrix4 project) {
         projectMatrix.set(project);
-        if (drawing) setupUniforms();
     }
 
     public void setViewMatrix(Matrix4 view) {
         viewMatrix.set(view);
-        if (drawing) setupUniforms();
-    }
-
-    public void setModelMatrix(Matrix4 model) {
-        modelMatrix.set(model);
-        if (drawing) setupUniforms();
-    }
-
-    private void setupUniforms() {
-        shader.setUniform3fv("u_fogColor", new float[]{fogColor.r, fogColor.g, fogColor.b}, 0, 3);
-        shader.setUniformMatrix("u_projectMatrix", projectMatrix);
-        shader.setUniformMatrix("u_viewMatrix", viewMatrix);
-        shader.setUniformMatrix("u_modelMatrix", modelMatrix);
-        shader.setUniformi("u_texture", 0);
     }
 }
 
