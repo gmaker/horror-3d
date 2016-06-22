@@ -4,7 +4,9 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import com.badlogic.gdx.math.Matrix3;
 import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.utils.NumberUtils;
@@ -12,7 +14,7 @@ import com.badlogic.gdx.utils.NumberUtils;
 /**
  * Created by admin on 19.06.2016.
  */
-public class SpriteBatch3D {
+public class BillboardBatch {
 
     @Deprecated
     public static Mesh.VertexDataType defaultVertexDataType = Mesh.VertexDataType.VertexArray;
@@ -45,10 +47,12 @@ public class SpriteBatch3D {
     public int renderCalls = 0;
     public int totalRenderCalls = 0;
     public int maxSpritesInBatch = 0;
-    public Color fogColor;
+    private Color fogColor;
+    private float angleWave;
+    private float amplitudeWave;
     public BoundingBox bb = new BoundingBox();
 
-    public SpriteBatch3D(int size, ShaderProgram shader) {
+    public BillboardBatch(int size, ShaderProgram shader) {
         // 32767 is max index, so 32767 / 8 - (32767 / 8 % 3) = 4095.
         if (size > 4095) throw new IllegalArgumentException("Can't have more than 4095 sprites per batch: " + size);
 
@@ -77,13 +81,21 @@ public class SpriteBatch3D {
         this.shader = shader;
     }
 
+    public void setWave(float angleWave, float amplitudeWave) {
+        this.angleWave = angleWave;
+        this.amplitudeWave = amplitudeWave;
+    }
+
     public void setFogColor(Color fogColor) {
         this.fogColor = fogColor;
     }
 
-    public void begin() {
-        if (drawing) throw new IllegalStateException("SpriteBatch3D.end must be called before begin.");
+    public void begin(Camera camera) {
+        if (drawing) throw new IllegalStateException("BillboardBatch.end must be called before begin.");
         renderCalls = 0;
+
+        projectMatrix.set(camera.projection);
+        viewMatrix.set(camera.view);
 
         shader.begin();
 
@@ -91,14 +103,10 @@ public class SpriteBatch3D {
     }
 
     public void end() {
-        if (!drawing) throw new IllegalStateException("SpriteBatch3D.begin must be called before end.");
+        if (!drawing) throw new IllegalStateException("BillboardBatch.begin must be called before end.");
         drawing = false;
 
         shader.end();
-    }
-
-    public void setColor(Color tint) {
-        color = tint.toFloatBits();
     }
 
     public void setColor(float r, float g, float b, float a) {
@@ -106,36 +114,17 @@ public class SpriteBatch3D {
         color = NumberUtils.intToFloatColor(intBits);
     }
 
-    public void setColor(float color) {
-        this.color = color;
-    }
-
-    public Color getColor() {
-        int intBits = NumberUtils.floatToIntColor(color);
-        Color color = tempColor;
-        color.r = (intBits & 0xff) / 255f;
-        color.g = ((intBits >>> 8) & 0xff) / 255f;
-        color.b = ((intBits >>> 16) & 0xff) / 255f;
-        color.a = ((intBits >>> 24) & 0xff) / 255f;
-        return color;
-    }
-
-    public float getPackedColor() {
-        return color;
-    }
-
-    public void addSprite(float x, float y, float z, int sprite) {
-        addSprite(x, y, z, (sprite % 8) * 16, (sprite / 8) * 16, 16, 16);
-    }
-
     public void addSprite(float x, float y, float z, float sx, float sy, float w, float h) {
+        final float xo = -w / 2.0f;
+        final float yo = -h / 2.0f;
+        addSprite(x, y, z, sx, sy, w, h, xo, yo);
+    }
+
+    public void addSprite(float x, float y, float z, float sx, float sy, float w, float h, float xo, float yo) {
 
         float[] vertices = this.vertices;
 
         Texture texture = Art.i.sheet;
-
-        final float xo = -w / 2.0f;
-        final float yo = -h / 2.0f;
         bb.ext(new Vector3(x, y, z));
 
         final float invTexWidth = 1f / texture.getWidth();
@@ -189,7 +178,8 @@ public class SpriteBatch3D {
     public void render(Matrix4 modelMatrix) {
         if (idx == 0) return;
 
-        shader.setUniform3fv("u_fogColor", new float[]{fogColor.r, fogColor.g, fogColor.b}, 0, 3);
+        shader.setUniformf("u_fogColor", fogColor);
+        shader.setUniformf("u_waveData", angleWave, amplitudeWave);
         shader.setUniformMatrix("u_projectMatrix", projectMatrix);
         shader.setUniformMatrix("u_viewMatrix", viewMatrix);
         shader.setUniformMatrix("u_modelMatrix", modelMatrix);
@@ -222,14 +212,6 @@ public class SpriteBatch3D {
 
     public void dispose() {
         mesh.dispose();
-    }
-
-    public void setProjectMatrix(Matrix4 project) {
-        projectMatrix.set(project);
-    }
-
-    public void setViewMatrix(Matrix4 view) {
-        viewMatrix.set(view);
     }
 }
 
