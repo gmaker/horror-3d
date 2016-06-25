@@ -12,13 +12,12 @@ uniform vec2 u_waveData;
 varying vec4 v_col;
 varying vec2 v_uv;
 
-float rand(vec2 co){
-    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+float rand(vec2 v){
+    return fract(sin(dot(v, vec2(12.9898, 78.233))) * 43758.5453);
 }
 
 void main() {
     v_uv = a_uv;
-    float sz = 256.0;
 
     float wave = 1.0;
     if (a_offs.x < 0 || a_offs.y > 0) {
