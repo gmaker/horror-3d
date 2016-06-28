@@ -8,10 +8,12 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.utils.NumberUtils;
 
+import javax.xml.soap.Text;
+
 /**
  * Created by admin on 19.06.2016.
  */
-public class BillboardBatch {
+public class SpriteBatch3D {
 
     @Deprecated
     public static Mesh.VertexDataType defaultVertexDataType = Mesh.VertexDataType.VertexArray;
@@ -48,8 +50,11 @@ public class BillboardBatch {
     private float angleWave;
     private float amplitudeWave;
     public BoundingBox bb = new BoundingBox();
+    private Texture texture;
+    private float invTexWidth;
+    private float invTexHeight;
 
-    public BillboardBatch(int size, ShaderProgram shader) {
+    public SpriteBatch3D(int size, ShaderProgram shader) {
         // 32767 is max index, so 32767 / 8 - (32767 / 8 % 3) = 4095.
         if (size > 4095) throw new IllegalArgumentException("Can't have more than 4095 sprites per batch: " + size);
 
@@ -83,12 +88,18 @@ public class BillboardBatch {
         this.amplitudeWave = amplitudeWave;
     }
 
+    public void setTexture(Texture texture) {
+        this.texture = texture;
+        invTexWidth = 1.0f / texture.getWidth();
+        invTexHeight = 1.0f / texture.getHeight();
+    }
+
     public void setFogColor(Color fogColor) {
         this.fogColor = fogColor;
     }
 
     public void begin(Camera camera) {
-        if (drawing) throw new IllegalStateException("BillboardBatch.end must be called before begin.");
+        if (drawing) throw new IllegalStateException("SpriteBatch3D.end must be called before begin.");
         renderCalls = 0;
 
         projectMatrix.set(camera.projection);
@@ -100,7 +111,7 @@ public class BillboardBatch {
     }
 
     public void end() {
-        if (!drawing) throw new IllegalStateException("BillboardBatch.begin must be called before end.");
+        if (!drawing) throw new IllegalStateException("SpriteBatch3D.begin must be called before end.");
         drawing = false;
 
         shader.end();
@@ -118,14 +129,9 @@ public class BillboardBatch {
     }
 
     public void addSprite(float x, float y, float z, float sx, float sy, float w, float h, float xo, float yo) {
-
         float[] vertices = this.vertices;
 
-        Texture texture = Art.i.sheet;
         bb.ext(new Vector3(x, y, z));
-
-        final float invTexWidth = 1f / texture.getWidth();
-        final float invTexHeight = 1f / texture.getHeight();
 
         final float u = sx * invTexWidth;
         final float u2 = (sx + w) * invTexWidth;
@@ -134,6 +140,7 @@ public class BillboardBatch {
 
         float color = this.color;
         int idx = this.idx;
+
         vertices[idx++] = x;
         vertices[idx++] = y;
         vertices[idx++] = z;
@@ -188,7 +195,8 @@ public class BillboardBatch {
         if (spritesInBatch > maxSpritesInBatch) maxSpritesInBatch = spritesInBatch;
         int count = spritesInBatch * 6;
 
-        Art.i.sheet.bind();
+        texture.bind();
+
         Mesh mesh = this.mesh;
         mesh.setVertices(vertices, 0, idx);
         mesh.getIndicesBuffer().position(0);

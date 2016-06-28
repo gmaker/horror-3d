@@ -8,8 +8,10 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.math.collision.BoundingBox;
+import ru.znay.znay.tt.entity.Tree;
 import ru.znay.znay.tt.gfx.Art;
+import ru.znay.znay.tt.gfx.SpriteBatch3D;
+import ru.znay.znay.tt.level.Level;
 
 public class Tranformers extends Game {
 
@@ -22,6 +24,7 @@ public class Tranformers extends Game {
     private float angleWave;
     private float amplitudeWave = 3.4f;
     private float angleWaveSpeed = 1.07f;
+    private Level level;
 
 
     @Override
@@ -32,7 +35,7 @@ public class Tranformers extends Game {
         camera.position.set(0, 4, 20);
         camera.direction.set(0, -slope, -1).nor().rotate(Vector3.Y, rotY);
         camera.near = 1f;
-        camera.far = 350f;
+        camera.far = 150f;
         camera.update();
 
         Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
@@ -41,9 +44,16 @@ public class Tranformers extends Game {
 
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-        Gdx.gl.glEnable(GL20.GL_CULL_FACE);
-        Gdx.gl.glCullFace(GL20.GL_FRONT);
+
         Gdx.gl.glColorMask(true, true, true, false);
+        newGame();
+    }
+
+    public void newGame() {
+        level = new Level(32, 32);
+        for (int i = 0; i < 10; i++) {
+            level.addEntity(new Tree((i % 5) * 16, 0, (i / 5) * 16));
+        }
     }
 
 
@@ -67,6 +77,9 @@ public class Tranformers extends Game {
 
     @Override
     public void render() {
+        Gdx.gl.glClearColor(fogColor.r, fogColor.g, fogColor.b, 1.0f);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+
 
         tick();
         float dt = Gdx.graphics.getDeltaTime();
@@ -75,49 +88,29 @@ public class Tranformers extends Game {
         while (angleWave > Math.PI * 2.0f) {
             angleWave -= Math.PI * 2.0f;
         }
-        Art.i.grassBatch.setWave(angleWave, amplitudeWave);
-        Art.i.grassBatch.setFogColor(fogColor);
-
-
-        Gdx.gl.glClearColor(fogColor.r, fogColor.g, fogColor.b, 1.0f);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
-
-        Art.i.modelBatch.begin(camera);
-        for (int i = 0; i < 10 * 10; i++) {
-            int x = i % 10 - 5;
-            int y = i / 10 - 5;
-            if (x == -5 || y == -5 || x == 4 || y == 4) {
-                Art.i.wallInstance.transform.set(new Matrix4().translate(x * 16, 0, y * 16));
-                Art.i.modelBatch.render(Art.i.wallInstance);
-            }
-
-        }
-        Art.i.modelBatch.end();
 
         Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
         Gdx.gl.glDepthFunc(GL20.GL_LESS);
         Gdx.gl.glDepthMask(true);
+        Gdx.gl.glEnable(GL20.GL_CULL_FACE);
+        Gdx.gl.glCullFace(GL20.GL_FRONT);
 
-        Art.i.grassBatch.begin(camera);
-        int r = 5;
-        for (int z = -r; z <= r; z++) {
-            for (int x = -r; x <= r; x++) {
-                float xo = x * 32.0f;
-                float zo = z * 32.0f;
-                Matrix4 modelMatrix = new Matrix4().translate(xo, 0.0f, zo);
-                BoundingBox bb = new BoundingBox(Art.i.grassBatch.bb).mul(modelMatrix);
+        SpriteBatch3D sb = Art.i.billboardBatch;
+        sb.setWave(angleWave, amplitudeWave);
+        sb.setFogColor(fogColor);
+        sb.setTexture(Art.i.sheet);
 
-                if (camera.frustum.boundsInFrustum(bb)) {
-                    Art.i.grassBatch.render(modelMatrix);
-                }
-            }
-        }
-        Art.i.grassBatch.end();
+        sb.begin(camera);
+        level.render(camera, sb);
+        sb.end();
 
-        Art.i.spriteBatch.setProjectionMatrix(new Matrix4().setToOrtho(0, C.WIDTH, C.HEIGHT, 0, 0, 1));
-        Art.i.spriteBatch.begin();
-        Art.i.font.draw(Art.i.spriteBatch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 10, 10);
-        Art.i.spriteBatch.end();
+        Gdx.gl.glDisable(GL20.GL_DEPTH_TEST);
+        Gdx.gl.glDisable(GL20.GL_CULL_FACE);
+        Art.i.spriteBatch2D.setProjectionMatrix(new Matrix4().setToOrtho(0, C.WIDTH, C.HEIGHT, 0, 0, 1));
+        Art.i.spriteBatch2D.begin();
+        Art.i.spriteBatch2D.setColor(Color.WHITE);
+        Art.i.font.draw(Art.i.spriteBatch2D, "FPS: " + Gdx.graphics.getFramesPerSecond(), 10, 10);
+        Art.i.spriteBatch2D.end();
     }
 
     @Override
