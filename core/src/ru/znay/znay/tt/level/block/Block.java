@@ -18,6 +18,7 @@ public class Block {
     public Level level;
     public boolean blockMotion = false;
     public boolean solidRender = false;
+    public int sprite = -1;
 
     public void init(Level level) {
         this.level = level;

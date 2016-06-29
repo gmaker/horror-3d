@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
+import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.NumberUtils;
 
 import javax.xml.soap.Text;
@@ -13,7 +14,7 @@ import javax.xml.soap.Text;
 /**
  * Created by admin on 19.06.2016.
  */
-public class SpriteBatch3D {
+public class SpriteBatch3D implements Disposable{
 
     @Deprecated
     public static Mesh.VertexDataType defaultVertexDataType = Mesh.VertexDataType.VertexArray;

@@ -10,8 +10,10 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import ru.znay.znay.tt.entity.Tree;
 import ru.znay.znay.tt.gfx.Art;
+import ru.znay.znay.tt.gfx.Cube;
 import ru.znay.znay.tt.gfx.SpriteBatch3D;
 import ru.znay.znay.tt.level.Level;
+import ru.znay.znay.tt.tool.R;
 
 public class Tranformers extends Game {
 
@@ -19,20 +21,17 @@ public class Tranformers extends Game {
 
     private Color fogColor = new Color(0.1f, 0.2f, 0.1f, 1.0f);
     private float rotY = 0.0f;
-    private float slope = 0.1f;
+    private float slope = 0.01f;
     private int tickTime = 0;
     private float angleWave;
     private float amplitudeWave = 3.4f;
     private float angleWaveSpeed = 1.07f;
     private Level level;
 
-
     @Override
     public void create() {
-        Art.i.init();
-
         camera = new PerspectiveCamera(70.0f, C.WIDTH, C.HEIGHT);
-        camera.position.set(0, 4, 20);
+        camera.position.set(16 * 16, 0, 16 * 16);
         camera.direction.set(0, -slope, -1).nor().rotate(Vector3.Y, rotY);
         camera.near = 1f;
         camera.far = 150f;
@@ -80,7 +79,6 @@ public class Tranformers extends Game {
         Gdx.gl.glClearColor(fogColor.r, fogColor.g, fogColor.b, 1.0f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
-
         tick();
         float dt = Gdx.graphics.getDeltaTime();
 
@@ -95,14 +93,23 @@ public class Tranformers extends Game {
         Gdx.gl.glEnable(GL20.GL_CULL_FACE);
         Gdx.gl.glCullFace(GL20.GL_FRONT);
 
+
+        Cube cube = Art.i.cube;
+        cube.setFogColor(fogColor);
+        cube.begin(camera);
+        cube.setTexture(Art.i.blocks);
+        level.renderBlocks(cube);
+        cube.end();
+
         SpriteBatch3D sb = Art.i.billboardBatch;
         sb.setWave(angleWave, amplitudeWave);
         sb.setFogColor(fogColor);
         sb.setTexture(Art.i.sheet);
 
         sb.begin(camera);
-        level.render(camera, sb);
+        level.renderSprites(camera, sb);
         sb.end();
+
 
         Gdx.gl.glDisable(GL20.GL_DEPTH_TEST);
         Gdx.gl.glDisable(GL20.GL_CULL_FACE);
@@ -116,6 +123,6 @@ public class Tranformers extends Game {
     @Override
     public void dispose() {
         super.dispose();
-        Art.i.dispose();
+        R.i.dispose();
     }
 }

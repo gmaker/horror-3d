@@ -3,11 +3,13 @@ package ru.znay.znay.tt.level;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.math.Matrix4;
 import ru.znay.znay.tt.entity.Entity;
+import ru.znay.znay.tt.gfx.Cube;
 import ru.znay.znay.tt.gfx.Sprite3D;
 import ru.znay.znay.tt.gfx.SpriteBatch3D;
 import ru.znay.znay.tt.level.block.Block;
 import ru.znay.znay.tt.level.block.GrassBlock;
 import ru.znay.znay.tt.level.block.SolidBlock;
+import ru.znay.znay.tt.level.block.WallBlock;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,8 +30,8 @@ public class Level {
         this.blocks = new Block[w * h];
         for (int z = 0; z < h; z++) {
             for (int x = 0; x < w; x++) {
-                blocks[x + z * w] = new Block();
-                if (Math.random() < 0.4) {
+                blocks[x + z * w] = new WallBlock();
+                if (Math.random() < 0.89) {
                     blocks[x + z * w] = new GrassBlock();
                 }
             }
@@ -42,7 +44,17 @@ public class Level {
         e.updatePos();
     }
 
-    public void render(PerspectiveCamera camera, SpriteBatch3D spriteBatch3D) {
+    public void renderBlocks(Cube cube) {
+        for (int z = 0; z < h; z++) {
+            for (int x = 0; x < w; x++) {
+                if (blocks[x + z * w].solidRender) {
+                    cube.render(new Matrix4().translate(x * 16, 0, z * 16).scl(16.0f), blocks[x + z * w].sprite);
+                }
+            }
+        }
+    }
+
+    public void renderSprites(PerspectiveCamera camera, SpriteBatch3D spriteBatch3D) {
         for (int z = 0; z < h; z++) {
             for (int x = 0; x < w; x++) {
 

@@ -5,68 +5,58 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import com.badlogic.gdx.utils.Disposable;
+import ru.znay.znay.tt.tool.R;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
 /**
  * Created by admin on 19.06.2016.
  */
 public class Art {
-    private static final Random random = new Random();
-    public static final int SPRITE_SIZE = 16;
-    public Texture sheet = new Texture(Gdx.files.internal("sheet.png"));
-    public Texture floor = new Texture(Gdx.files.internal("floor.png"));
+    public Texture sheet;
+    public Texture blocks;
     private ShaderProgram billboardShader;
     private ShaderProgram spriteShader3D;
+    private ShaderProgram cubeShader;
     public SpriteBatch3D billboardBatch;
     public SpriteBatch3D spriteBatch3D;
     public SpriteBatch spriteBatch2D;
+    public Cube cube;
     public BitmapFont font;
 
     public static Art i = new Art();
 
     private Art() {
-    }
-
-    public void init() {
         initShaders();
-        initGraphics();
+        sheet = R.i.register(new Texture(Gdx.files.internal("sheet.png")));
+        blocks = R.i.register(new Texture(Gdx.files.internal("blocks.png")));
+        font = R.i.register(new BitmapFont(true));
+        spriteBatch2D = R.i.register(new SpriteBatch());
+        billboardBatch = R.i.register(new SpriteBatch3D(3000, billboardShader));
+        spriteBatch3D = R.i.register(new SpriteBatch3D(3000, spriteShader3D));
+        cube = R.i.register(new Cube(cubeShader));
     }
-
 
     private void initShaders() {
         ShaderProgram.pedantic = false;
 
-        billboardShader = new ShaderProgram(Gdx.files.internal("billboard.vert"), Gdx.files.internal("billboard.frag"));
+        billboardShader = R.i.register(new ShaderProgram(Gdx.files.internal("billboard.vert"), Gdx.files.internal("billboard.frag")));
         if (!billboardShader.isCompiled()) {
             System.out.println(billboardShader.getLog());
         }
 
-        spriteShader3D = new ShaderProgram(Gdx.files.internal("sprite.vert"), Gdx.files.internal("billboard.frag"));
+        spriteShader3D = R.i.register(new ShaderProgram(Gdx.files.internal("sprite.vert"), Gdx.files.internal("billboard.frag")));
         if (!spriteShader3D.isCompiled()) {
             System.out.println(spriteShader3D.getLog());
         }
-    }
 
-    private void initGraphics() {
-        font = new BitmapFont(true);
-        spriteBatch2D = new SpriteBatch();
-        billboardBatch = new SpriteBatch3D(3000, billboardShader);
-        spriteBatch3D = new SpriteBatch3D(3000, spriteShader3D);
-    }
-
-    private void initGrass() {
-
-    }
-
-
-    public void dispose() {
-        sheet.dispose();
-        billboardShader.dispose();
-        spriteShader3D.dispose();
-        spriteBatch2D.dispose();
-        spriteShader3D.dispose();
-        billboardBatch.dispose();
-        font.dispose();
+        cubeShader = R.i.register(new ShaderProgram(Gdx.files.internal("cube.vert"), Gdx.files.internal("cube.frag")));
+        if (!cubeShader.isCompiled()) {
+            System.out.println(cubeShader.getLog());
+        }
     }
 }
