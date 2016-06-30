@@ -139,7 +139,7 @@ public class Cube implements Disposable {
         int intBits = (int) (255 * a) << 24 | (int) (255 * b) << 16 | (int) (255 * g) << 8 | (int) (255 * r);
         float color = NumberUtils.intToFloatColor(intBits);
         for (int i = 0; i < vertices.length; i += 9) {
-            vertices[i + 4] = color;
+            vertices[i + 3] = color;
         }
     }
 
@@ -164,7 +164,7 @@ public class Cube implements Disposable {
         Art.i.dithering.bind(1);
         shader.setUniformi("u_dithering", 1);
 
-
+        mesh.setVertices(vertices);
         mesh.render(shader, GL20.GL_TRIANGLES, 0, 6 * 6);
     }
 

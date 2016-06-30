@@ -47,9 +47,10 @@ public class Level {
     public void renderBlocks(Cube cube) {
         for (int z = 0; z < h; z++) {
             for (int x = 0; x < w; x++) {
-                if (blocks[x + z * w].solidRender) {
-                   // cube.setColor(1,1,1,1);
-                    cube.render(new Matrix4().translate(x * 16, 0, z * 16).scl(16.0f), blocks[x + z * w].sprite);
+                Block b = blocks[x + z * w];
+                if (b.solidRender) {
+                    cube.setColor(b.r, b.g, b.b, b.a);
+                    cube.render(new Matrix4().translate(x * 16, 0, z * 16).scl(16.0f), b.sprite);
                 }
             }
         }
