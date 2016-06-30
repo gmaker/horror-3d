@@ -44,17 +44,17 @@ public class Art {
     private void initShaders() {
         ShaderProgram.pedantic = false;
 
-        billboardShader = R.i.register(new ShaderProgram(Gdx.files.internal("billboard.vert"), Gdx.files.internal("billboard.frag")));
+        billboardShader = R.i.register(new ShaderProgram(Gdx.files.internal("billboard.vert"), Gdx.files.internal("common.frag")));
         if (!billboardShader.isCompiled()) {
             System.out.println(billboardShader.getLog());
         }
 
-        spriteShader3D = R.i.register(new ShaderProgram(Gdx.files.internal("sprite.vert"), Gdx.files.internal("billboard.frag")));
+        spriteShader3D = R.i.register(new ShaderProgram(Gdx.files.internal("sprite.vert"), Gdx.files.internal("common.frag")));
         if (!spriteShader3D.isCompiled()) {
             System.out.println(spriteShader3D.getLog());
         }
 
-        cubeShader = R.i.register(new ShaderProgram(Gdx.files.internal("cube.vert"), Gdx.files.internal("cube.frag")));
+        cubeShader = R.i.register(new ShaderProgram(Gdx.files.internal("cube.vert"), Gdx.files.internal("common.frag")));
         if (!cubeShader.isCompiled()) {
             System.out.println(cubeShader.getLog());
         }

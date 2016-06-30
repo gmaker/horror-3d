@@ -13,7 +13,7 @@ public class GrassBlock extends Block {
                 float x = (xx / (float)rr + (random.nextFloat() - 0.5f) * 0.1f) * 16.0f;
                 float y = (-0.5f + (random.nextFloat() * 0.5f) * 0.1f) * 8.0f;
                 float z = (zz / (float)rr + (random.nextFloat() - 0.5f) * 0.1f) * 16.0f;
-                float br = 1.0f - random.nextFloat() * 0.1f;
+                float br = 1.0f - random.nextFloat() * 0.3f;
                 float r = (1.0f - random.nextFloat() * 0.1f) * br;
                 float g = (1.0f - random.nextFloat() * 0.1f) * br;
                 float b = (1.0f - random.nextFloat() * 0.1f) * br;
