@@ -6,5 +6,5 @@ package ru.znay.znay.tt;
 public class C {
     public static final int WIDTH = 320;
     public static final int HEIGHT = 240;
-    public static final int DESKTOP_SCALE = 2;
+    public static final int DESKTOP_SCALE = 3;
 }

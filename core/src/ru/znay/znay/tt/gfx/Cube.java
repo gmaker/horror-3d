@@ -98,7 +98,7 @@ public class Cube implements Disposable {
                 1.0f, 0.0f
         };
 
-        float color = NumberUtils.intToFloatColor(0x7fffffff);
+        float color = NumberUtils.intToFloatColor(0xffffffff);
 
         int pIdx = 0;
         int nIdx = 0;
@@ -159,9 +159,12 @@ public class Cube implements Disposable {
         shader.setUniformMatrix("u_viewMatrix", viewMatrix);
         shader.setUniformMatrix("u_modelMatrix", modelMatrix);
         shader.setUniformf("u_block", block);
+        texture.bind(0);
         shader.setUniformi("u_texture", 0);
+        Art.i.dithering.bind(1);
+        shader.setUniformi("u_dithering", 1);
 
-        texture.bind();
+
         mesh.render(shader, GL20.GL_TRIANGLES, 0, 6 * 6);
     }
 

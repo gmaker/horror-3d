@@ -1,22 +1,19 @@
 package ru.znay.znay.tt.gfx;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.Gdx2DPixmap;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
-import com.badlogic.gdx.utils.Disposable;
 import ru.znay.znay.tt.tool.R;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
 
 /**
  * Created by admin on 19.06.2016.
  */
 public class Art {
+    public Texture dithering;
     public Texture sheet;
     public Texture blocks;
     private ShaderProgram billboardShader;
@@ -31,14 +28,38 @@ public class Art {
     public static Art i = new Art();
 
     private Art() {
+
         initShaders();
         sheet = R.i.register(new Texture(Gdx.files.internal("sheet.png")));
         blocks = R.i.register(new Texture(Gdx.files.internal("blocks.png")));
+        dithering = R.i.register(createDitheringTexture());
         font = R.i.register(new BitmapFont(true));
         spriteBatch2D = R.i.register(new SpriteBatch());
         billboardBatch = R.i.register(new SpriteBatch3D(3000, billboardShader));
         spriteBatch3D = R.i.register(new SpriteBatch3D(3000, spriteShader3D));
         cube = R.i.register(new Cube(cubeShader));
+
+    }
+
+    private Texture createDitheringTexture() {
+        int[] dis = {
+                1, 9, 3, 11,
+                13, 5, 15, 7,
+                4, 12, 2, 10,
+                16, 8, 14, 6
+        };
+
+        Pixmap pixmap = new Pixmap(4, 4, Pixmap.Format.Alpha);
+
+        for (int x = 0; x < 4; x++) {
+            for (int y = 0; y < 4; y++) {
+                pixmap.drawPixel(x, y, dis[x + y * 4]);
+            }
+        }
+        Texture result = new Texture(pixmap);
+        pixmap.dispose();
+
+        return result;
     }
 
     private void initShaders() {

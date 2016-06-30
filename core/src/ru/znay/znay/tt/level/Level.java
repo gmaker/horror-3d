@@ -48,7 +48,7 @@ public class Level {
         for (int z = 0; z < h; z++) {
             for (int x = 0; x < w; x++) {
                 if (blocks[x + z * w].solidRender) {
-                    cube.setColor(0,0,0,1);
+                   // cube.setColor(1,1,1,1);
                     cube.render(new Matrix4().translate(x * 16, 0, z * 16).scl(16.0f), blocks[x + z * w].sprite);
                 }
             }

@@ -188,15 +188,16 @@ public class SpriteBatch3D implements Disposable{
         shader.setUniformMatrix("u_projectMatrix", projectMatrix);
         shader.setUniformMatrix("u_viewMatrix", viewMatrix);
         shader.setUniformMatrix("u_modelMatrix", modelMatrix);
+        texture.bind(0);
         shader.setUniformi("u_texture", 0);
+        Art.i.dithering.bind(1);
+        shader.setUniformi("u_dithering", 1);
 
         renderCalls++;
         totalRenderCalls++;
         int spritesInBatch = idx / SPRITE_SIZE;
         if (spritesInBatch > maxSpritesInBatch) maxSpritesInBatch = spritesInBatch;
         int count = spritesInBatch * 6;
-
-        texture.bind();
 
         Mesh mesh = this.mesh;
         mesh.setVertices(vertices, 0, idx);

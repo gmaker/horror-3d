@@ -111,13 +111,13 @@ public class Tranformers extends Game {
         sb.end();
 
 
-        Gdx.gl.glDisable(GL20.GL_DEPTH_TEST);
+/*        Gdx.gl.glDisable(GL20.GL_DEPTH_TEST);
         Gdx.gl.glDisable(GL20.GL_CULL_FACE);
         Art.i.spriteBatch2D.setProjectionMatrix(new Matrix4().setToOrtho(0, C.WIDTH, C.HEIGHT, 0, 0, 1));
         Art.i.spriteBatch2D.begin();
         Art.i.spriteBatch2D.setColor(Color.WHITE);
-        Art.i.font.draw(Art.i.spriteBatch2D, "FPS: " + Gdx.graphics.getFramesPerSecond(), 10, 10);
-        Art.i.spriteBatch2D.end();
+        //Art.i.font.draw(Art.i.spriteBatch2D, "FPS: " + Gdx.graphics.getFramesPerSecond(), 10, 10);
+        Art.i.spriteBatch2D.end();*/
     }
 
     @Override
