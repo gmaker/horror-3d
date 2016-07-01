@@ -4,7 +4,7 @@
 
 uniform sampler2D u_texture;
 uniform sampler2D u_dithering;
-uniform vec3 u_fogColor;
+uniform vec4 u_fogColor;
 
 varying vec4 v_col;
 varying vec2 v_uv;
@@ -22,6 +22,6 @@ void main() {
 		br *= 0.86;
 	}
 
-	col = vec4(v_col.rgb * col.rgb * br + (1.0 - br) * u_fogColor, v_col.a);
+	col = vec4(v_col.rgb * col.rgb * br + (1.0 - br) * u_fogColor.rgb, v_col.a);
 	gl_FragColor = col;
 }
