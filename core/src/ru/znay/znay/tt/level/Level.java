@@ -1,15 +1,13 @@
 package ru.znay.znay.tt.level;
 
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.math.Matrix4;
 import ru.znay.znay.tt.entity.Entity;
 import ru.znay.znay.tt.gfx.Cube;
 import ru.znay.znay.tt.gfx.Sprite3D;
 import ru.znay.znay.tt.gfx.SpriteBatch3D;
-import ru.znay.znay.tt.level.block.Block;
-import ru.znay.znay.tt.level.block.GrassBlock;
-import ru.znay.znay.tt.level.block.SolidBlock;
-import ru.znay.znay.tt.level.block.WallBlock;
+import ru.znay.znay.tt.level.block.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +30,11 @@ public class Level {
             for (int x = 0; x < w; x++) {
                 blocks[x + z * w] = new WallBlock();
                 if (Math.random() < 0.89) {
-                    blocks[x + z * w] = new GrassBlock();
+                    if (Math.random() < 0.9) {
+                        blocks[x + z * w] = new GrassBlock();
+                    } else {
+                        blocks[x + z * w] = new TreeBlock();
+                    }
                 }
             }
         }
@@ -44,13 +46,13 @@ public class Level {
         e.updatePos();
     }
 
-    public void renderBlocks(Cube cube) {
+    public void renderBlocks(Camera camera, Cube cube) {
         for (int z = 0; z < h; z++) {
             for (int x = 0; x < w; x++) {
                 Block b = blocks[x + z * w];
                 if (b.solidRender) {
                     cube.setColor(b.r, b.g, b.b, b.a);
-                    cube.render(new Matrix4().translate(x * 16, 0, z * 16).scl(16.0f), b.sprite);
+                    cube.render(camera, new Matrix4().translate(x * 16, 0, z * 16).scl(16.0f), b.sprite);
                 }
             }
         }

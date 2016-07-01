@@ -3,6 +3,7 @@ package ru.znay.znay.tt.gfx;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.NumberUtils;
 
@@ -143,9 +144,7 @@ public class Cube implements Disposable {
         }
     }
 
-    public void begin(Camera camera) {
-        this.projectMatrix = camera.projection;
-        this.viewMatrix = camera.view;
+    public void begin() {
         shader.begin();
     }
 
@@ -153,10 +152,15 @@ public class Cube implements Disposable {
         shader.end();
     }
 
-    public void render(Matrix4 modelMatrix, int block) {
+    Vector3 v = new Vector3();
+
+    public void render(Camera camera, Matrix4 modelMatrix, int block) {
+        modelMatrix.getTranslation(v);
+        if (!camera.frustum.boundsInFrustum(v, new Vector3(16, 16, 16))) return;
+
         shader.setUniformf("u_fogColor", fogColor);
-        shader.setUniformMatrix("u_projectMatrix", projectMatrix);
-        shader.setUniformMatrix("u_viewMatrix", viewMatrix);
+        shader.setUniformMatrix("u_projectMatrix", camera.projection);
+        shader.setUniformMatrix("u_viewMatrix", camera.view);
         shader.setUniformMatrix("u_modelMatrix", modelMatrix);
         shader.setUniformf("u_block", block);
         texture.bind(0);

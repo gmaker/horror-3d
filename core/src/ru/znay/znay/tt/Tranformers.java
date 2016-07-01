@@ -6,9 +6,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
-import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
-import ru.znay.znay.tt.entity.Tree;
 import ru.znay.znay.tt.gfx.Art;
 import ru.znay.znay.tt.gfx.Cube;
 import ru.znay.znay.tt.gfx.SpriteBatch3D;
@@ -50,9 +48,6 @@ public class Tranformers extends Game {
 
     public void newGame() {
         level = new Level(32, 32);
-        for (int i = 0; i < 10; i++) {
-            level.addEntity(new Tree((i % 5) * 16, 0, (i / 5) * 16));
-        }
     }
 
 
@@ -96,9 +91,9 @@ public class Tranformers extends Game {
 
         Cube cube = Art.i.cube;
         cube.setFogColor(fogColor);
-        cube.begin(camera);
+        cube.begin();
         cube.setTexture(Art.i.blocks);
-        level.renderBlocks(cube);
+        level.renderBlocks(camera, cube);
         cube.end();
 
         SpriteBatch3D sb = Art.i.billboardBatch;

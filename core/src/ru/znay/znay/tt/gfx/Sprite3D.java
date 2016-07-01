@@ -34,7 +34,7 @@ public class Sprite3D {
     }
 
     public final void addSprite(float xo, float yo, float zo, Camera camera, SpriteBatch3D spriteBatch3D) {
-        if (camera.frustum.pointInFrustum(x + xo, y + yo, z + zo)) {
+        if (camera.frustum.sphereInFrustum(x + xo, y + yo, z + zo, 8.0f)) {
             spriteBatch3D.setColor(r, g, b, a);
             spriteBatch3D.addSprite(x + xo, y + yo, z + zo, sx, sy, sw, sh);
         }
