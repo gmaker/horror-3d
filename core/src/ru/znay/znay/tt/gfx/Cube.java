@@ -139,8 +139,8 @@ public class Cube implements Disposable {
     public void setColor(float r, float g, float b, float a) {
         int intBits = (int) (255 * a) << 24 | (int) (255 * b) << 16 | (int) (255 * g) << 8 | (int) (255 * r);
         float color = NumberUtils.intToFloatColor(intBits);
-        for (int i = 0; i < vertices.length; i += 9) {
-            vertices[i + 3] = color;
+        for (int i = 0; i < vertices.length/ 9; i++) {
+            vertices[i * 9 + 3] = color;
         }
     }
 

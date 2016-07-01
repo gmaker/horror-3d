@@ -17,7 +17,7 @@ public class Tranformers extends Game {
 
     private PerspectiveCamera camera;
 
-    private Color fogColor = new Color(0.1f, 0.2f, 0.1f, 1.0f);
+    private Color fogColor = new Color(0.1f, 0.2f, 0.2f, 1.0f);
     private float rotY = 0.0f;
     private float slope = 0.01f;
     private int tickTime = 0;
@@ -87,7 +87,6 @@ public class Tranformers extends Game {
         Gdx.gl.glDepthMask(true);
         Gdx.gl.glEnable(GL20.GL_CULL_FACE);
         Gdx.gl.glCullFace(GL20.GL_FRONT);
-
 
         Cube cube = Art.i.cube;
         cube.setFogColor(fogColor);

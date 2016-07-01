@@ -26,7 +26,7 @@ void main() {
     vec4 p = u_projectMatrix * (u_viewMatrix * u_modelMatrix * vec4(a_pos, 1.0) + vec4(a_offs.x, a_offs.y, wave + 0.5, 0.0));
 
     v_pos = p;
-    v_col = a_col;
+    v_col = vec4(a_col.rgb, a_col.a - 1.0 / abs(p.z) * 2.0);
     v_uv = a_uv;
 
     gl_Position = p;
