@@ -19,7 +19,7 @@ void main() {
 
 	float dither = texture2D(u_dithering, mod(gl_FragCoord.xy / 2.0, 4.0) / 4.0).a * 16.0;
 	if (br < dither) {
-		br *= 0.61;
+		br *= 0.86;
 	}
 
 	col = vec4(v_col.rgb * col.rgb * br + (1.0 - br) * u_fogColor, v_col.a);
