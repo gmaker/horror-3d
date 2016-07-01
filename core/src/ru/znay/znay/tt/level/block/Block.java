@@ -19,6 +19,8 @@ public class Block {
     public boolean blockMotion = false;
     public boolean solidRender = false;
     public int sprite = -1;
+    public int floorSprite = -1;
+    public int ceilSprite = -1;
     public float r = 1.0f;
     public float g = 1.0f;
     public float b = 1.0f;

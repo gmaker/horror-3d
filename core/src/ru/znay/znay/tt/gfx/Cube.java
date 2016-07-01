@@ -16,8 +16,6 @@ public class Cube implements Disposable {
     public Mesh mesh;
     private final float[] vertices;
     private ShaderProgram shader;
-    private Matrix4 projectMatrix;
-    private Matrix4 viewMatrix;
     private Color fogColor;
     private Texture texture;
 
@@ -154,7 +152,7 @@ public class Cube implements Disposable {
 
     Vector3 v = new Vector3();
 
-    public void render(Camera camera, Matrix4 modelMatrix, int block) {
+    public void render(Camera camera, Matrix4 modelMatrix, int sprite) {
         modelMatrix.getTranslation(v);
         if (!camera.frustum.boundsInFrustum(v, new Vector3(16, 16, 16))) return;
 
@@ -162,7 +160,7 @@ public class Cube implements Disposable {
         shader.setUniformMatrix("u_projectMatrix", camera.projection);
         shader.setUniformMatrix("u_viewMatrix", camera.view);
         shader.setUniformMatrix("u_modelMatrix", modelMatrix);
-        shader.setUniformf("u_block", block);
+        shader.setUniformf("u_sprite", sprite);
         texture.bind(0);
         shader.setUniformi("u_texture", 0);
         Art.i.dithering.bind(1);

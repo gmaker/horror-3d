@@ -10,6 +10,6 @@ public class TreeBlock extends GrassBlock {
         super();
         float x = ((random.nextFloat() - 0.5f) * 0.2f) * 8.0f;
         float z = ((random.nextFloat() - 0.5f) * 0.2f) * 8.0f;
-        sprites.add(new Sprite3D(x, 0, z, 16, 0, 16, 16));
+        sprites.add(new Sprite3D(x, 0, z, 16, 0, 16, 32, -8, -8));
     }
 }

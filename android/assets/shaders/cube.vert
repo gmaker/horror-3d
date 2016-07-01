@@ -6,7 +6,7 @@ attribute vec3 a_normal;
 uniform mat4 u_projectMatrix;
 uniform mat4 u_viewMatrix;
 uniform mat4 u_modelMatrix;
-uniform float u_block;
+uniform float u_sprite;
 
 varying vec4 v_col;
 varying vec2 v_uv;
@@ -21,7 +21,7 @@ void main() {
     v_col = a_col;
 
     float isz = 1.0 / 4.0;
-    v_uv = (a_uv  + vec2(mod(u_block, 4.0), int(u_block / 4.0))) * isz;
+    v_uv = (a_uv  + vec2(mod(u_sprite, 4.0), int(u_sprite / 4.0))) * isz;
 
     gl_Position = p;
 
