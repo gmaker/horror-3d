@@ -7,9 +7,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.math.Vector3;
-import ru.znay.znay.tt.gfx.Art;
-import ru.znay.znay.tt.gfx.Cube;
-import ru.znay.znay.tt.gfx.SpriteBatch3D;
+import ru.znay.znay.tt.gfx.*;
 import ru.znay.znay.tt.level.Level;
 import ru.znay.znay.tt.tool.R;
 
@@ -19,20 +17,22 @@ public class Tranformers extends Game {
 
     private Color fogColor = new Color(0.1f, 0.2f, 0.2f, 1.0f);
     private float rotY = 0.0f;
-    private float slope = 0.01f;
+    private float slope = 0.02f;
     private int tickTime = 0;
     private float angleWave;
     private float amplitudeWave = 3.4f;
     private float angleWaveSpeed = 1.07f;
     private Level level;
+    private double unprocessed=  0.0;
+    private long lastTime = System.nanoTime();
+    private double iNsPerSec = 60.0 / 1000000000.0;
 
-    @Override
     public void create() {
         camera = new PerspectiveCamera(70.0f, C.WIDTH, C.HEIGHT);
         camera.position.set(16 * 16, 0, 16 * 16);
         camera.direction.set(0, -slope, -1).nor().rotate(Vector3.Y, rotY);
         camera.near = 1f;
-        camera.far = 150f;
+        camera.far = 128f;
         camera.update();
 
         Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
@@ -52,7 +52,19 @@ public class Tranformers extends Game {
 
 
     public void tick() {
+        float dt = Gdx.graphics.getDeltaTime();
+
+        angleWave += dt * angleWaveSpeed;
+        while (angleWave > Math.PI * 2.0f) {
+            angleWave -= Math.PI * 2.0f;
+        }
+
         tickTime++;
+
+        if (tickTime % 60 == 0 ) {
+            System.out.println(Gdx.graphics.getFramesPerSecond());
+        }
+
         float xa = 0.0f;
         float za = 0.0f;
         float rotateSpeed = 1.7f;
@@ -66,7 +78,6 @@ public class Tranformers extends Game {
         camera.position.add(new Vector3(xa, 0, za).rotate(Vector3.Y, rotY));
         camera.direction.set(0, -slope, -1).nor().rotate(Vector3.Y, rotY);
         camera.update();
-
     }
 
     @Override
@@ -74,12 +85,12 @@ public class Tranformers extends Game {
         Gdx.gl.glClearColor(fogColor.r, fogColor.g, fogColor.b, 1.0f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
-        tick();
-        float dt = Gdx.graphics.getDeltaTime();
-
-        angleWave += dt * angleWaveSpeed;
-        while (angleWave > Math.PI * 2.0f) {
-            angleWave -= Math.PI * 2.0f;
+        long now = System.nanoTime();
+        unprocessed += (now - lastTime) * iNsPerSec;
+        lastTime = now;
+        while(unprocessed >= 1.0) {
+            unprocessed -= 1.0;
+            tick();
         }
 
         Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
@@ -88,12 +99,12 @@ public class Tranformers extends Game {
         Gdx.gl.glEnable(GL20.GL_CULL_FACE);
         Gdx.gl.glCullFace(GL20.GL_FRONT);
 
-        Cube cube = Art.i.cube;
-        cube.setFogColor(fogColor);
-        cube.begin();
-        cube.setTexture(Art.i.blocks);
-        level.renderBlocks(camera, cube);
-        cube.end();
+        PlaneBatch pb = Art.i.planeBatch;
+        pb.setFogColor(fogColor);
+        pb.begin();
+        pb.setTexture(Art.i.blocks);
+        level.renderBlocks(camera, pb);
+        pb.end();
 
         SpriteBatch3D sb = Art.i.billboardBatch;
         sb.setWave(angleWave, amplitudeWave);
@@ -103,6 +114,7 @@ public class Tranformers extends Game {
         sb.begin(camera);
         level.renderSprites(camera, sb);
         sb.end();
+
 
 
 /*        Gdx.gl.glDisable(GL20.GL_DEPTH_TEST);

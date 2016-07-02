@@ -54,10 +54,9 @@ public class SpriteBatch3D implements Disposable{
     private Texture texture;
     private float invTexWidth;
     private float invTexHeight;
-
     public SpriteBatch3D(int size, ShaderProgram shader) {
         // 32767 is max index, so 32767 / 8 - (32767 / 8 % 3) = 4095.
-        if (size > 4095) throw new IllegalArgumentException("Can't have more than 4095 sprites per batch: " + size);
+        if (size > 32767 / VERTEX_SIZE - ((32767 / VERTEX_SIZE) % 3)) throw new IllegalArgumentException("Can't have more than 4095 sprites per batch: " + size);
 
         Mesh.VertexDataType vertexDataType = (Gdx.gl30 != null) ? Mesh.VertexDataType.VertexBufferObjectWithVAO : defaultVertexDataType;
 

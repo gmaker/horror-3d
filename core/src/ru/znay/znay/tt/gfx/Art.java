@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.Gdx2DPixmap;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import ru.znay.znay.tt.tool.R;
@@ -17,12 +16,10 @@ public class Art {
     public Texture sheet;
     public Texture blocks;
     private ShaderProgram billboardShader;
-    private ShaderProgram spriteShader3D;
-    private ShaderProgram cubeShader;
+    private ShaderProgram planeShader;
     public SpriteBatch3D billboardBatch;
-    public SpriteBatch3D spriteBatch3D;
     public SpriteBatch spriteBatch2D;
-    public Cube cube;
+    public PlaneBatch planeBatch;
     public BitmapFont font;
 
     public static Art i = new Art();
@@ -34,10 +31,9 @@ public class Art {
         blocks = R.i.register(new Texture(Gdx.files.internal("blocks.png")));
         dithering = R.i.register(createDitheringTexture());
         font = R.i.register(new BitmapFont(true));
+        planeBatch = R.i.register(new PlaneBatch(3000, planeShader));
         spriteBatch2D = R.i.register(new SpriteBatch());
         billboardBatch = R.i.register(new SpriteBatch3D(3000, billboardShader));
-        spriteBatch3D = R.i.register(new SpriteBatch3D(3000, spriteShader3D));
-        cube = R.i.register(new Cube(cubeShader));
 
     }
 
@@ -70,14 +66,9 @@ public class Art {
             System.out.println(billboardShader.getLog());
         }
 
-        spriteShader3D = R.i.register(new ShaderProgram(Gdx.files.internal("shaders/sprite.vert"), Gdx.files.internal("shaders/common.frag")));
-        if (!spriteShader3D.isCompiled()) {
-            System.out.println(spriteShader3D.getLog());
-        }
-
-        cubeShader = R.i.register(new ShaderProgram(Gdx.files.internal("shaders/cube.vert"), Gdx.files.internal("shaders/common.frag")));
-        if (!cubeShader.isCompiled()) {
-            System.out.println(cubeShader.getLog());
+        planeShader = R.i.register(new ShaderProgram(Gdx.files.internal("shaders/plane.vert"), Gdx.files.internal("shaders/common.frag")));
+        if (!planeShader.isCompiled()) {
+            System.out.println(planeShader.getLog());
         }
     }
 }

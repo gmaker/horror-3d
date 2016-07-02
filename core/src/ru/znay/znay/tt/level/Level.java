@@ -3,10 +3,9 @@ package ru.znay.znay.tt.level;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Vector3;
 import ru.znay.znay.tt.entity.Entity;
-import ru.znay.znay.tt.gfx.Cube;
-import ru.znay.znay.tt.gfx.Sprite3D;
-import ru.znay.znay.tt.gfx.SpriteBatch3D;
+import ru.znay.znay.tt.gfx.*;
 import ru.znay.znay.tt.level.block.*;
 
 import java.util.ArrayList;
@@ -46,19 +45,43 @@ public class Level {
         e.updatePos();
     }
 
-    public void renderBlocks(Camera camera, Cube cube) {
+    private Vector3 v = new Vector3();
+    private Vector3 dim = new Vector3(16, 16, 16);
+
+    public void renderBlocks(Camera camera, PlaneBatch pb) {
         for (int z = 0; z < h; z++) {
             for (int x = 0; x < w; x++) {
                 Block b = blocks[x + z * w];
+                v.set(x * 16, 0, z * 16);
+                if (!camera.frustum.boundsInFrustum(v, dim)) continue;
+                pb.setColor(b.r, b.g, b.b, b.a);
                 if (b.solidRender) {
-                    cube.setColor(b.r, b.g, b.b, b.a);
-                    cube.render(camera, new Matrix4().translate(x * 16, 0, z * 16).scl(16.0f), b.sprite);
+                    int sx = (b.sprite % 4) * 16;
+                    int sy = (b.sprite / 4) * 16;
+                    pb.addPlane(x * 16, 0, z * 16, 16, ModelData.rawDataFrontOut, sx, sy, 16, 16);
+                    pb.addPlane(x * 16, 0, z * 16, 16, ModelData.rawDataBackOut, sx, sy, 16, 16);
+                    pb.addPlane(x * 16, 0, z * 16, 16, ModelData.rawDataRightOut, sx, sy, 16, 16);
+                    pb.addPlane(x * 16, 0, z * 16, 16, ModelData.rawDataLeftOut, sx, sy, 16, 16);
+                } else {
+
+                    if (b.floorSprite != -1) {
+                        int sx = (b.floorSprite % 4) * 16;
+                        int sy = (b.floorSprite / 4) * 16;
+                        pb.addPlane(x * 16, 0, z * 16, 16, ModelData.rawDataBottomIn, sx, sy, 16, 16);
+                    }
+
+                    if (b.ceilSprite != -1) {
+                        int sx = (b.ceilSprite % 4) * 16;
+                        int sy = (b.ceilSprite / 4) * 16;
+                        pb.addPlane(x * 16, 0, z * 16, 16, ModelData.rawDataTopIn, sx, sy, 16, 16);
+                    }
                 }
             }
         }
+        pb.renderAndReset(camera, new Matrix4());
     }
 
-    public void renderSprites(PerspectiveCamera camera, SpriteBatch3D spriteBatch3D) {
+    public void renderSprites(Camera camera, SpriteBatch3D spriteBatch3D) {
         for (int z = 0; z < h; z++) {
             for (int x = 0; x < w; x++) {
 

@@ -10,6 +10,9 @@ public class DesktopLauncher {
         LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
         config.width = C.WIDTH * C.DESKTOP_SCALE;
         config.height = C.HEIGHT * C.DESKTOP_SCALE;
+        config.vSyncEnabled = false;
+        config.backgroundFPS = 10000;
+        config.foregroundFPS = 10000;
         new LwjglApplication(new Tranformers(), config);
     }
 }
