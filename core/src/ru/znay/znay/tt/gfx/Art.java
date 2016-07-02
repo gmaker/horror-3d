@@ -15,6 +15,7 @@ public class Art {
     public Texture dithering;
     public Texture sheet;
     public Texture blocks;
+    public Pixmap level;
     private ShaderProgram billboardShader;
     private ShaderProgram planeShader;
     public SpriteBatch3D billboardBatch;
@@ -27,6 +28,9 @@ public class Art {
     private Art() {
 
         initShaders();
+        Texture levelTexture = R.i.register(new Texture(Gdx.files.internal("level.png")));
+        levelTexture.getTextureData().prepare();;
+        level = R.i.register(levelTexture.getTextureData().consumePixmap());
         sheet = R.i.register(new Texture(Gdx.files.internal("sheet.png")));
         blocks = R.i.register(new Texture(Gdx.files.internal("blocks.png")));
         dithering = R.i.register(createDitheringTexture());
@@ -61,12 +65,12 @@ public class Art {
     private void initShaders() {
         ShaderProgram.pedantic = false;
 
-        billboardShader = R.i.register(new ShaderProgram(Gdx.files.internal("shaders/billboard.vert"), Gdx.files.internal("shaders/common.frag")));
+        billboardShader = R.i.register(new ShaderProgram(Gdx.files.internal("shaders/billboard.vert"), Gdx.files.internal("shaders/billboard.frag")));
         if (!billboardShader.isCompiled()) {
             System.out.println(billboardShader.getLog());
         }
 
-        planeShader = R.i.register(new ShaderProgram(Gdx.files.internal("shaders/plane.vert"), Gdx.files.internal("shaders/common.frag")));
+        planeShader = R.i.register(new ShaderProgram(Gdx.files.internal("shaders/plane.vert"), Gdx.files.internal("shaders/plane.frag")));
         if (!planeShader.isCompiled()) {
             System.out.println(planeShader.getLog());
         }

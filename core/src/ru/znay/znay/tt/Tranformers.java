@@ -16,21 +16,19 @@ public class Tranformers extends Game {
     private PerspectiveCamera camera;
 
     private Color fogColor = new Color(0.1f, 0.2f, 0.2f, 1.0f);
-    private float rotY = 0.0f;
+    private float rotY = -90.0f;
     private float slope = 0.02f;
     private int tickTime = 0;
     private float angleWave;
     private float amplitudeWave = 3.4f;
     private float angleWaveSpeed = 1.07f;
     private Level level;
-    private double unprocessed=  0.0;
+    private double unprocessed = 0.0;
     private long lastTime = System.nanoTime();
     private double iNsPerSec = 60.0 / 1000000000.0;
 
     public void create() {
         camera = new PerspectiveCamera(70.0f, C.WIDTH, C.HEIGHT);
-        camera.position.set(16 * 16, 0, 16 * 16);
-        camera.direction.set(0, -slope, -1).nor().rotate(Vector3.Y, rotY);
         camera.near = 1f;
         camera.far = 128f;
         camera.update();
@@ -47,7 +45,10 @@ public class Tranformers extends Game {
     }
 
     public void newGame() {
-        level = new Level(32, 32);
+        level = new Level(Art.i.level);
+        camera.position.set(level.xSpawn * 16 - 8, 0, level.ySpawn * 16 - 8);
+        camera.direction.set(0, -slope, -1).nor().rotate(Vector3.Y, rotY);
+        camera.update();
     }
 
 
@@ -61,7 +62,7 @@ public class Tranformers extends Game {
 
         tickTime++;
 
-        if (tickTime % 60 == 0 ) {
+        if (tickTime % 60 == 0) {
             System.out.println(Gdx.graphics.getFramesPerSecond());
         }
 
@@ -88,7 +89,7 @@ public class Tranformers extends Game {
         long now = System.nanoTime();
         unprocessed += (now - lastTime) * iNsPerSec;
         lastTime = now;
-        while(unprocessed >= 1.0) {
+        while (unprocessed >= 1.0) {
             unprocessed -= 1.0;
             tick();
         }

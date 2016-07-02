@@ -23,7 +23,7 @@ void main() {
     if (a_offs.y > 0.5) {
         wave = sin(u_waveData.x + (rand(a_pos.xz / 512.0)) * 3.1415) * u_waveData.y*0.3 ;
     }
-    vec4 p = u_projectMatrix * (u_viewMatrix * u_modelMatrix * vec4(a_pos, 1.0) + vec4(a_offs.x, a_offs.y, wave + 0.5, 0.0));
+    vec4 p = u_projectMatrix * (u_viewMatrix * u_modelMatrix * vec4(a_pos, 1.0) + vec4(a_offs.x, a_offs.y, wave, 0.0));
 
     v_pos = p;
     v_col = vec4(a_col.rgb, a_col.a - 1.0 / abs(p.z) * 2.0);

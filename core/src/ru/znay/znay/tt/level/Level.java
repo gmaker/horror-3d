@@ -2,6 +2,7 @@ package ru.znay.znay.tt.level;
 
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import ru.znay.znay.tt.entity.Entity;
@@ -21,22 +22,45 @@ public class Level {
     public Block solidWall = new SolidBlock();
     public List<Entity> entities = new ArrayList<Entity>();
 
-    public Level(int w, int h) {
-        this.w = w;
-        this.h = h;
+    public int floorSprite = 4;
+    public int ceilSprite = -1;
+
+    public int xSpawn;
+    public int ySpawn;
+
+    public Level(Pixmap pixmap) {
+        this.w = pixmap.getWidth();
+        this.h = pixmap.getHeight();
         this.blocks = new Block[w * h];
         for (int z = 0; z < h; z++) {
             for (int x = 0; x < w; x++) {
-                blocks[x + z * w] = new WallBlock();
-                if (Math.random() < 0.89) {
-                    if (Math.random() < 0.9) {
-                        blocks[x + z * w] = new GrassBlock();
-                    } else {
-                        blocks[x + z * w] = new TreeBlock();
-                    }
-                }
+                int col = (pixmap.getPixel(x, z) >> 8) & 0xFFFFFF;
+                Block b = getBlock(col);
+                if (b.floorSprite == -1) b.floorSprite = floorSprite;
+                if (b.ceilSprite == -1) b.ceilSprite = ceilSprite;
+                blocks[x + z * w] = b;
             }
         }
+
+        for (int z = 0; z < h; z++) {
+            for (int x = 0; x < w; x++) {
+                int col = (pixmap.getPixel(x, z) >> 8) & 0xFFFFFF;
+                decorateBlock(x, z, col);
+            }
+        }
+    }
+
+    public void decorateBlock(int x, int y, int col) {
+        if (col == 0x0000FF) {
+            xSpawn = x;
+            ySpawn = y;
+        }
+    }
+
+    public Block getBlock(int col) {
+        if (col == 0x00FF00) return new GrassBlock();
+        if (col == 0xFFFFFF) return new WallBlock();
+        return new Block();
     }
 
     public void addEntity(Entity e) {
@@ -62,6 +86,8 @@ public class Level {
                     pb.addPlane(x * 16, 0, z * 16, 16, ModelData.rawDataBackOut, sx, sy, 16, 16);
                     pb.addPlane(x * 16, 0, z * 16, 16, ModelData.rawDataRightOut, sx, sy, 16, 16);
                     pb.addPlane(x * 16, 0, z * 16, 16, ModelData.rawDataLeftOut, sx, sy, 16, 16);
+
+                   // pb.addPlane(x * 16, 0, z * 16, 16, ModelData.rawDataTopOut, sx, sy, 16, 16);
                 } else {
 
                     if (b.floorSprite != -1) {

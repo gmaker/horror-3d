@@ -12,6 +12,7 @@ varying vec4 v_col;
 varying vec2 v_uv;
 varying float v_br;
 varying vec4 v_pos;
+varying vec3 v_normal;
 
 void main() {
 
@@ -20,6 +21,7 @@ void main() {
     v_pos = p;
     v_col = a_col;
     v_uv = a_uv;
+    v_normal = a_normal;
 
     gl_Position = p;
 
