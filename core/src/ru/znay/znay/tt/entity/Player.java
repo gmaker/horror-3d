@@ -5,6 +5,8 @@ package ru.znay.znay.tt.entity;
  */
 public class Player extends Entity {
     public float slope = 0.02f;
+    public float bob = 0.0f;
+    public float bobPhase = 0.0f;
     public Player(float x, float y, float z) {
         super(x, y, z);
     }
@@ -23,10 +25,14 @@ public class Player extends Entity {
         if (left) xm--;
         if (right) xm++;
         double dd = xm * xm + zm * zm;
-        if (dd > 0) dd = Math.sqrt(dd);
-        else dd = 1;
+        if (dd > 0) {
+            dd  = Math.sqrt(dd);
+            bob += dd;
+            bobPhase += dd;
+        } else dd = 1;
         xm /= dd;
         zm /= dd;
+
         xa += (xm * Math.cos(rot) + zm * Math.sin(rot)) * walkSpeed;
         za += (zm * Math.cos(rot) - xm * Math.sin(rot)) * walkSpeed;
 
@@ -35,7 +41,10 @@ public class Player extends Entity {
         float friction = 0.6f;
         xa *= friction;
         za *= friction;
+        bob *= 0.6;
         rot += rotA;
         rotA *= 0.4;
+
+        y = -0.2f + (float)Math.sin(bobPhase * 0.3) * 0.06f * bob;
     }
 }
