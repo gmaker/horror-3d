@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.math.Vector3;
+import ru.znay.znay.tt.entity.Player;
 import ru.znay.znay.tt.gfx.*;
 import ru.znay.znay.tt.level.Level;
 import ru.znay.znay.tt.tool.R;
@@ -16,8 +17,7 @@ public class Tranformers extends Game {
     private PerspectiveCamera camera;
 
     private Color fogColor = new Color(0.1f, 0.2f, 0.2f, 1.0f);
-    private float rotY = -90.0f;
-    private float slope = 0.02f;
+
     private int tickTime = 0;
     private float angleWave;
     private float amplitudeWave = 3.4f;
@@ -26,6 +26,7 @@ public class Tranformers extends Game {
     private double unprocessed = 0.0;
     private long lastTime = System.nanoTime();
     private double iNsPerSec = 60.0 / 1000000000.0;
+    private Player player;
 
     public void create() {
         camera = new PerspectiveCamera(70.0f, C.WIDTH, C.HEIGHT);
@@ -46,11 +47,16 @@ public class Tranformers extends Game {
 
     public void newGame() {
         level = new Level(Art.i.level);
-        camera.position.set(level.xSpawn * 16 - 8, 0, level.ySpawn * 16 - 8);
-        camera.direction.set(0, -slope, -1).nor().rotate(Vector3.Y, rotY);
-        camera.update();
+        player = new Player(level.xSpawn * 16 - 8, 0, level.ySpawn * 16 - 8);
+        level.addEntity(player);
+        updateCam(player);
     }
 
+    public void updateCam(Player p) {
+        camera.position.set(p.x, p.y, p.z);
+        camera.direction.set(0, -p.slope, -1).nor().rotate(Vector3.Y, (float)(p.rot / Math.PI) * 180.0f);
+        camera.update();
+    }
 
     public void tick() {
         float dt = Gdx.graphics.getDeltaTime();
@@ -66,19 +72,14 @@ public class Tranformers extends Game {
             System.out.println(Gdx.graphics.getFramesPerSecond());
         }
 
-        float xa = 0.0f;
-        float za = 0.0f;
-        float rotateSpeed = 1.7f;
-        if (Gdx.input.isKeyPressed(Input.Keys.D)) xa += 1;
-        if (Gdx.input.isKeyPressed(Input.Keys.A)) xa -= 1;
-        if (Gdx.input.isKeyPressed(Input.Keys.W)) za -= 1;
-        if (Gdx.input.isKeyPressed(Input.Keys.S)) za += 1;
-
-        if (Gdx.input.isKeyPressed(Input.Keys.Q)) rotY += rotateSpeed;
-        if (Gdx.input.isKeyPressed(Input.Keys.E)) rotY -= rotateSpeed;
-        camera.position.add(new Vector3(xa, 0, za).rotate(Vector3.Y, rotY));
-        camera.direction.set(0, -slope, -1).nor().rotate(Vector3.Y, rotY);
-        camera.update();
+        player.tick(
+                Gdx.input.isKeyPressed(Input.Keys.W),
+                Gdx.input.isKeyPressed(Input.Keys.S),
+                Gdx.input.isKeyPressed(Input.Keys.A),
+                Gdx.input.isKeyPressed(Input.Keys.D),
+                Gdx.input.isKeyPressed(Input.Keys.Q),
+                Gdx.input.isKeyPressed(Input.Keys.E));
+        updateCam(player);
     }
 
     @Override

@@ -37,4 +37,8 @@ public class Block {
     public void removeEntity(Entity e) {
         entities.remove(e);
     }
+
+    public boolean blocks(Entity entity) {
+        return false;
+    }
 }

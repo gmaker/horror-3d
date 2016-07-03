@@ -60,6 +60,7 @@ public class Level {
     public Block getBlock(int col) {
         if (col == 0x00FF00) return new GrassBlock();
         if (col == 0xFFFFFF) return new WallBlock();
+        if (col == 0x008C00) return new TreeBlock();
         return new Block();
     }
 
