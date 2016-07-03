@@ -63,8 +63,8 @@ public class Entity {
         if (level.getBlock(x0, y1).blocks(this)) return false;
         if (level.getBlock(x1, y1).blocks(this)) return false;
 
-        int xc = (int) (Math.floor(xx + 0.5));
-        int zc = (int) (Math.floor(yy + 0.5));
+        int xc = (int) (Math.floor(xx + 8.0f) / 16.0f);
+        int zc = (int) (Math.floor(yy + 8.0f) / 16.0f);
         int rr = 2;
         for (int z = zc - rr; z <= zc + rr; z++) {
             for (int x = xc - rr; x <= xc + rr; x++) {

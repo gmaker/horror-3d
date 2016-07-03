@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
+import ru.znay.znay.tt.entity.Enemy;
 import ru.znay.znay.tt.entity.Entity;
 import ru.znay.znay.tt.gfx.*;
 import ru.znay.znay.tt.level.block.*;
@@ -22,7 +23,7 @@ public class Level {
     public Block solidWall = new SolidBlock();
     public List<Entity> entities = new ArrayList<Entity>();
 
-    public int floorSprite = 4;
+    public int floorSprite = 1 * 8;
     public int ceilSprite = -1;
 
     public int xSpawn;
@@ -55,6 +56,9 @@ public class Level {
             xSpawn = x;
             ySpawn = y;
         }
+        if (col == 0xFF0000) {
+            addEntity(new Enemy(x * 16, 0, y * 16));
+        }
     }
 
     public Block getBlock(int col) {
@@ -81,25 +85,25 @@ public class Level {
                 if (!camera.frustum.boundsInFrustum(v, dim)) continue;
                 pb.setColor(b.r, b.g, b.b, b.a);
                 if (b.solidRender) {
-                    int sx = (b.sprite % 4) * 16;
-                    int sy = (b.sprite / 4) * 16;
+                    int sx = (b.sprite % 8) * 16;
+                    int sy = (b.sprite / 8) * 16;
                     pb.addPlane(x * 16, 0, z * 16, 16, ModelData.rawDataFrontOut, sx, sy, 16, 16);
                     pb.addPlane(x * 16, 0, z * 16, 16, ModelData.rawDataBackOut, sx, sy, 16, 16);
                     pb.addPlane(x * 16, 0, z * 16, 16, ModelData.rawDataRightOut, sx, sy, 16, 16);
                     pb.addPlane(x * 16, 0, z * 16, 16, ModelData.rawDataLeftOut, sx, sy, 16, 16);
 
-                   // pb.addPlane(x * 16, 0, z * 16, 16, ModelData.rawDataTopOut, sx, sy, 16, 16);
+                    // pb.addPlane(x * 16, 0, z * 16, 16, ModelData.rawDataTopOut, sx, sy, 16, 16);
                 } else {
 
                     if (b.floorSprite != -1) {
-                        int sx = (b.floorSprite % 4) * 16;
-                        int sy = (b.floorSprite / 4) * 16;
+                        int sx = (b.floorSprite % 8) * 16;
+                        int sy = (b.floorSprite / 8) * 16;
                         pb.addPlane(x * 16, 0, z * 16, 16, ModelData.rawDataBottomIn, sx, sy, 16, 16);
                     }
 
                     if (b.ceilSprite != -1) {
-                        int sx = (b.ceilSprite % 4) * 16;
-                        int sy = (b.ceilSprite / 4) * 16;
+                        int sx = (b.ceilSprite % 8) * 16;
+                        int sy = (b.ceilSprite / 8) * 16;
                         pb.addPlane(x * 16, 0, z * 16, 16, ModelData.rawDataTopIn, sx, sy, 16, 16);
                     }
                 }

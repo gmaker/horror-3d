@@ -63,6 +63,10 @@ public class PlaneBatch implements Disposable {
     }
 
     public void addPlane(float x, float y, float z, float scale, float[] rawData, float sx, float sy, float sw, float sh) {
+        addPlane(x, y, z, scale, scale, rawData, sx, sy, sw, sh);
+    }
+
+    public void addPlane(float x, float y, float z, float scaleXZ, float scaleY, float[] rawData, float sx, float sy, float sw, float sh) {
         final float u = sx * invTexWidth;
         final float u2 = (sx + sw) * invTexWidth;
         final float v = sy * invTexHeight;
@@ -71,9 +75,9 @@ public class PlaneBatch implements Disposable {
         float color = this.color;
         int idx = this.idx;
         int rdx = 0;
-        vertices[idx++] = rawData[rdx++] * scale + x;
-        vertices[idx++] = rawData[rdx++] * scale + y;
-        vertices[idx++] = rawData[rdx++] * scale + z;
+        vertices[idx++] = rawData[rdx++] * scaleXZ + x;
+        vertices[idx++] = rawData[rdx++] * scaleY + y;
+        vertices[idx++] = rawData[rdx++] * scaleXZ + z;
         vertices[idx++] = color;
         vertices[idx++] = rawData[rdx++];
         vertices[idx++] = rawData[rdx++];
@@ -81,9 +85,9 @@ public class PlaneBatch implements Disposable {
         vertices[idx++] = u;
         vertices[idx++] = v;
 
-        vertices[idx++] = rawData[rdx++] * scale + x;
-        vertices[idx++] = rawData[rdx++] * scale + y;
-        vertices[idx++] = rawData[rdx++] * scale + z;
+        vertices[idx++] = rawData[rdx++] * scaleXZ + x;
+        vertices[idx++] = rawData[rdx++] * scaleY + y;
+        vertices[idx++] = rawData[rdx++] * scaleXZ + z;
         vertices[idx++] = color;
         vertices[idx++] = rawData[rdx++];
         vertices[idx++] = rawData[rdx++];
@@ -91,9 +95,9 @@ public class PlaneBatch implements Disposable {
         vertices[idx++] = u;
         vertices[idx++] = v2;
 
-        vertices[idx++] = rawData[rdx++] * scale + x;
-        vertices[idx++] = rawData[rdx++] * scale + y;
-        vertices[idx++] = rawData[rdx++] * scale + z;
+        vertices[idx++] = rawData[rdx++] * scaleXZ + x;
+        vertices[idx++] = rawData[rdx++] * scaleY + y;
+        vertices[idx++] = rawData[rdx++] * scaleXZ + z;
         vertices[idx++] = color;
         vertices[idx++] = rawData[rdx++];
         vertices[idx++] = rawData[rdx++];
@@ -101,9 +105,9 @@ public class PlaneBatch implements Disposable {
         vertices[idx++] = u2;
         vertices[idx++] = v2;
 
-        vertices[idx++] = rawData[rdx++] * scale + x;
-        vertices[idx++] = rawData[rdx++] * scale + y;
-        vertices[idx++] = rawData[rdx++] * scale + z;
+        vertices[idx++] = rawData[rdx++] * scaleXZ + x;
+        vertices[idx++] = rawData[rdx++] * scaleY + y;
+        vertices[idx++] = rawData[rdx++] * scaleXZ + z;
         vertices[idx++] = color;
         vertices[idx++] = rawData[rdx++];
         vertices[idx++] = rawData[rdx++];

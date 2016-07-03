@@ -4,7 +4,7 @@ package ru.znay.znay.tt.entity;
  * Created by admin on 03.07.2016.
  */
 public class Player extends Entity {
-    public float slope = 0.02f;
+    public float slope = 0f;
     public float bob = 0.0f;
     public float bobPhase = 0.0f;
     public Player(float x, float y, float z) {

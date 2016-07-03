@@ -6,6 +6,7 @@ package ru.znay.znay.tt.level.block;
 public class WallBlock extends SolidBlock {
     public WallBlock() {
         super();
-        sprite = random.nextInt(1);
+        sprite = 0;
+        if (random.nextDouble() < 0.05) sprite = 1;
     }
 }

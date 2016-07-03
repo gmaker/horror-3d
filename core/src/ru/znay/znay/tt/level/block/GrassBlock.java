@@ -5,6 +5,6 @@ package ru.znay.znay.tt.level.block;
  */
 public class GrassBlock extends Block {
     public GrassBlock() {
-        floorSprite = 4;
+        floorSprite = 1 * 8 + random.nextInt(3);
     }
 }
