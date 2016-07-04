@@ -98,6 +98,10 @@ public class Entity {
         return true;
     }
 
+    public void tick() {
+
+    }
+
     public void init(Level level) {
         this.level = level;
     }

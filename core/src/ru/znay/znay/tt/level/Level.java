@@ -136,4 +136,21 @@ public class Level {
         }
         return blocks[xt + zt * w];
     }
+
+    public void tick() {
+        for (int i = 0; i < entities.size(); i++) {
+            Entity e = entities.get(i);
+            e.tick();
+            e.updatePos();
+            if (e.removed) {
+                entities.remove(i--);
+            }
+        }
+
+        for (int y = 0; y < h; y++) {
+            for (int x = 0; x < w; x++) {
+                blocks[x + y * w].tick();
+            }
+        }
+    }
 }

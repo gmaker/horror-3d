@@ -41,4 +41,14 @@ public class Block {
     public boolean blocks(Entity entity) {
         return false;
     }
+
+    public void tick() {
+        for (int i = 0; i < sprites.size(); i++) {
+            Sprite3D sprite = sprites.get(i);
+            sprite.tick();
+            if (sprite.removed) {
+                sprites.remove(i--);
+            }
+        }
+    }
 }

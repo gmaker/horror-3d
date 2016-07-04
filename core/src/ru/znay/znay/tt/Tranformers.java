@@ -72,6 +72,8 @@ public class Tranformers extends Game {
             System.out.println(Gdx.graphics.getFramesPerSecond());
         }
 
+        level.tick();
+
         player.tick(
                 Gdx.input.isKeyPressed(Input.Keys.W),
                 Gdx.input.isKeyPressed(Input.Keys.S),

@@ -10,6 +10,7 @@ public class Sprite3D {
     public float r = 1.0f, g = 1.0f, b = 1.0f, a = 1.0f;
     private float sx, sy, sw, sh;
     private float xo, yo;
+    public boolean removed = false;
 
     public Sprite3D(float x, float y, float z, float sx, float sy, float sw, float sh) {
         this(x, y, z, sx, sy, sw, sh, -sw / 2, -sh / 2);
@@ -36,6 +37,13 @@ public class Sprite3D {
         return this;
     }
 
+    public void setSprite(float sx, float sy, float sw, float sh) {
+        this.sx = sx;
+        this.sy = sy;
+        this.sw = sw;
+        this.sh = sh;
+    }
+
     public final void addSprite(Camera camera, SpriteBatch3D spriteBatch3D) {
         addSprite(0, 0, 0, camera, spriteBatch3D);
     }
@@ -47,4 +55,7 @@ public class Sprite3D {
         }
     }
 
+    public void tick() {
+
+    }
 }
