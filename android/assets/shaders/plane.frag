@@ -12,7 +12,7 @@ varying float v_br;
 varying vec4 v_pos;
 varying vec3 v_normal;
 
-vec3 lightDirection = normalize(vec3(-0.5, -0.8, 0.5));
+vec3 lightDirection = normalize(vec3(-0.5, 0.8, 0.5));
 vec3 dir = normalize(vec3(0.0, 0.0, -1.0));
 
 float diffuse(vec3 normal){

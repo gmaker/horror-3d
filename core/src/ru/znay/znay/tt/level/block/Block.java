@@ -51,4 +51,8 @@ public class Block {
             }
         }
     }
+
+    public void decorate(Level level, int x, int y) {
+
+    }
 }

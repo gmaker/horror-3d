@@ -17,6 +17,7 @@ public class ModelData {
             -0.5f, 0.5f, 0.5f,
             -1.0f, 0.0f, 0.0f,
     };
+
     public static final float[] rawDataRightOut = {
             0.5f, 0.5f, 0.5f,
             1.0f, 0.0f, 0.0f,
@@ -30,6 +31,7 @@ public class ModelData {
             0.5f, 0.5f, -0.5f,
             1.0f, 0.0f, 0.0f,
     };
+
 
     public static final float[] rawDataTopOut = {
             -0.5f, 0.5f, -0.5f,
@@ -85,31 +87,59 @@ public class ModelData {
             0.0f, 0.0f, -1.0f,
     };
 
-    public static final float[] rawDataTopIn = {
+    public static final float[] rawDataFrontIn = {
+            0.5f, 0.5f, 0.5f,
+            0.0f, 0.0f, -1.0f,
+
+            0.5f, -0.5f, 0.5f,
+            0.0f, 0.0f, -1.0f,
+
+            -0.5f, -0.5f, 0.5f,
+            0.0f, 0.0f, -1.0f,
+
             -0.5f, 0.5f, 0.5f,
-            0.0f, 1.0f, 0.0f,
+            0.0f, 0.0f, -1.0f,
+    };
 
-            -0.5f, 0.5f, -0.5f,
-            0.0f, 1.0f, 0.0f,
-
+    public static final float[] rawDataRightIn = {
             0.5f, 0.5f, -0.5f,
-            0.0f, 1.0f, 0.0f,
+            -1.0f, 0.0f, 0.0f,
+
+            0.5f, -0.5f, -0.5f,
+            -1.0f, 0.0f, 0.0f,
+
+            0.5f, -0.5f, 0.5f,
+            -1.0f, 0.0f, 0.0f,
 
             0.5f, 0.5f, 0.5f,
-            0.0f, 1.0f, 0.0f,
+            -1.0f, 0.0f, 0.0f,
+    };
+
+    public static final float[] rawDataTopIn = {
+            -0.5f, 0.5f, 0.5f,
+            0.0f, -1.0f, 0.0f,
+
+            -0.5f, 0.5f, -0.5f,
+            0.0f, -1.0f, 0.0f,
+
+            0.5f, 0.5f, -0.5f,
+            0.0f, -1.0f, 0.0f,
+
+            0.5f, 0.5f, 0.5f,
+            0.0f, -1.0f, 0.0f,
     };
 
     public static final float[] rawDataBottomIn = {
             -0.5f, -0.5f, -0.5f,
-            0.0f, -1.0f, 0.0f,
+            0.0f, 1.0f, 0.0f,
 
             -0.5f, -0.5f, 0.5f,
-            0.0f, -1.0f, 0.0f,
+            0.0f, 1.0f, 0.0f,
 
             0.5f, -0.5f, 0.5f,
-            0.0f, -1.0f, 0.0f,
+            0.0f, 1.0f, 0.0f,
 
             0.5f, -0.5f, -0.5f,
-            0.0f, -1.0f, 0.0f,
+            0.0f, 1.0f, 0.0f,
     };
 }

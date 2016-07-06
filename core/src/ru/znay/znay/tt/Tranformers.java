@@ -7,6 +7,8 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 import ru.znay.znay.tt.entity.Player;
 import ru.znay.znay.tt.gfx.*;
 import ru.znay.znay.tt.level.Level;
@@ -27,12 +29,15 @@ public class Tranformers extends Game {
     private long lastTime = System.nanoTime();
     private double iNsPerSec = 60.0 / 1000000000.0;
     private Player player;
+    public Stage stage;
 
     public void create() {
         camera = new PerspectiveCamera(70.0f, C.WIDTH, C.HEIGHT);
         camera.near = 1f;
         camera.far = 128f;
         camera.update();
+
+        stage = new Stage(new FitViewport(C.WIDTH, C.HEIGHT, camera));
 
         Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
         Gdx.gl.glDepthFunc(GL20.GL_LESS);
@@ -54,9 +59,15 @@ public class Tranformers extends Game {
 
     public void updateCam(Player p) {
         camera.position.set(p.x, p.y, p.z);
-        camera.direction.set(0, -p.slope, -1).nor().rotate(Vector3.Y, (float)(p.rot / Math.PI) * 180.0f);
+        camera.direction.set(0, -p.slope, -1).nor().rotate(Vector3.Y, (float) (p.rot / Math.PI) * 180.0f);
         camera.update();
     }
+
+    @Override
+    public void resize(int width, int height) {
+        stage.getViewport().update(width, height, false);
+    }
+
 
     public void tick() {
         float dt = Gdx.graphics.getDeltaTime();
