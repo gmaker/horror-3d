@@ -31,7 +31,7 @@ void main() {
 	}
 
 	col = vec4(v_col.rgb * col.rgb * br + (1.0 - br) * u_fogColor.rgb, v_col.a);
-	col.rgb += light * vec3(0.7, 0.5, 0.2)*1.0;
+	col.rgb += light * vec3(0.7, 0.5, 0.2)*0.5;
 
 	gl_FragColor = col;
 }

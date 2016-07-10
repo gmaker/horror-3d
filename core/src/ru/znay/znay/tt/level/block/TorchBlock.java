@@ -18,7 +18,7 @@ public class TorchBlock extends Block {
     public TorchBlock(int xt, int zt) {
         torchSprite = new Sprite3D(0, 0, 0, 0, 4 * 16, 16, 16);
         sprites.add(torchSprite);
-        pointLight = new PointLight(new Vector3(xt * 16, +4.0f, zt * 16), 8.0f);
+        pointLight = new PointLight(new Vector3(xt * 16, +4.0f, zt * 16), 50.0f);
     }
 
     public void decorate(Level level, int x, int y) {
@@ -52,7 +52,7 @@ public class TorchBlock extends Block {
             torchSprite.setSprite(frame * 16, 4 * 16, 16, 16);
         }
         if (tickTime++ % 60 == 0) {
-           // pointLight.needsUpdate = true;
+            pointLight.needsUpdate = true;
         }
     }
 }

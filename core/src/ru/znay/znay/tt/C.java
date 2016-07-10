@@ -8,7 +8,7 @@ import com.badlogic.gdx.graphics.Color;
 public class C {
     public static final int WIDTH = 320;
     public static final int HEIGHT = 240;
-    public static final int DESKTOP_SCALE = 1;
+    public static final int DESKTOP_SCALE = 2;
 
     public static final int DEPTH_MAP_SIZE = 128;
 

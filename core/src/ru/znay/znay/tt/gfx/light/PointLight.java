@@ -24,6 +24,7 @@ public class PointLight extends Light {
     public PointLight(Vector3 pos, float radius) {
         super(Art.i.lightShader, pos);
         this.radius = radius;
+        initCamera();
     }
 
     public void applyToShader(Shader sceneShader) {
@@ -38,7 +39,7 @@ public class PointLight extends Light {
     public void initCamera() {
         camera = new PerspectiveCamera(90f, C.DEPTH_MAP_SIZE, C.DEPTH_MAP_SIZE);
         camera.near = 1f;
-        camera.far = 32.0f;
+        camera.far = radius;
         camera.position.set(pos);
         camera.update();
     }

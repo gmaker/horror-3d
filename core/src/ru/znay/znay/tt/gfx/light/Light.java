@@ -17,7 +17,6 @@ public abstract class Light {
     public Light(Shader shader, Vector3 pos) {
         this.shader = shader;
         this.pos = pos;
-        initCamera();
     }
 
     public abstract void applyToShader(Shader sceneShader);
