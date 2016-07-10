@@ -1,11 +1,9 @@
 package ru.znay.znay.tt.gfx;
 
 import com.badlogic.gdx.graphics.*;
-import com.badlogic.gdx.graphics.glutils.ShaderProgram;
-import com.badlogic.gdx.math.Matrix4;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.NumberUtils;
+import ru.znay.znay.tt.gfx.shader.Shader;
 
 
 /**
@@ -18,15 +16,14 @@ public class PlaneBatch implements Disposable {
 
     public Mesh mesh;
     private final float[] vertices;
-    private ShaderProgram shader;
-    private Color fogColor;
+    private Shader shader;
     private Texture texture;
     private int idx = 0;
     private float color;
     private float invTexWidth;
     private float invTexHeight;
 
-    public PlaneBatch(int maxPlanes, ShaderProgram shader) {
+    public PlaneBatch(int maxPlanes, Texture texture) {
         if (maxPlanes > 32767 / VERTEX_SIZE - ((32767 / VERTEX_SIZE) % 3))
             throw new IllegalArgumentException("Can't have planes per batch: " + maxPlanes);
 
@@ -50,11 +47,7 @@ public class PlaneBatch implements Disposable {
         }
 
         mesh.setIndices(indices);
-        this.shader = shader;
-    }
-
-    public void setFogColor(Color fogColor) {
-        this.fogColor = fogColor;
+        setTexture(texture);
     }
 
     public void setColor(float r, float g, float b, float a) {
@@ -117,25 +110,17 @@ public class PlaneBatch implements Disposable {
         this.idx = idx;
     }
 
-    public void begin() {
-        shader.begin();
+    public void begin(Shader shader, Camera camera)    {
+        this.shader = shader;
+        shader.begin(camera);
     }
 
     public void end() {
         shader.end();
     }
 
-    public void render(Camera camera, Matrix4 modelMatrix) {
+    public void render() {
         if (idx == 0) return;
-
-        shader.setUniformf("u_fogColor", fogColor);
-        shader.setUniformMatrix("u_projectMatrix", camera.projection);
-        shader.setUniformMatrix("u_viewMatrix", camera.view);
-        shader.setUniformMatrix("u_modelMatrix", modelMatrix);
-        texture.bind(0);
-        shader.setUniformi("u_texture", 0);
-        Art.i.dithering.bind(1);
-        shader.setUniformi("u_dithering", 1);
 
         int planesInBatch = idx / PLANE_SIZE;
         int count = planesInBatch * 6;
@@ -145,11 +130,13 @@ public class PlaneBatch implements Disposable {
         mesh.getIndicesBuffer().position(0);
         mesh.getIndicesBuffer().limit(count);
 
-        mesh.render(shader, GL20.GL_TRIANGLES, 0, count);
+        texture.bind(0);
+
+        mesh.render(shader.shaderProgram, GL20.GL_TRIANGLES, 0, count);
     }
 
-    public void renderAndReset(Camera camera, Matrix4 modelMatrix) {
-        render(camera, modelMatrix);
+    public void renderAndReset() {
+        render();
         reset();
     }
 

@@ -1,9 +1,12 @@
 package ru.znay.znay.tt.entity;
 
+import ru.znay.znay.tt.ai.MoveOrder;
+import ru.znay.znay.tt.ai.Order;
+
 /**
  * Created by admin on 03.07.2016.
  */
-public class Player extends Entity {
+public class Player extends Mob {
     public float slope = 0f;
     public float bob = 0.0f;
     public float bobPhase = 0.0f;
@@ -14,9 +17,6 @@ public class Player extends Entity {
     }
 
     public void tick(boolean up, boolean down, boolean left, boolean right, boolean turnLeft, boolean turnRight) {
-        double rotSpeed = 0.02;
-        double walkSpeed = 0.23;
-
         if (turnLeft) rotA += rotSpeed;
         if (turnRight) rotA -= rotSpeed;
 

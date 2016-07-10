@@ -1,13 +1,12 @@
 package ru.znay.znay.tt.level;
 
 import com.badlogic.gdx.graphics.Camera;
-import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import ru.znay.znay.tt.entity.Enemy;
 import ru.znay.znay.tt.entity.Entity;
 import ru.znay.znay.tt.gfx.*;
+import ru.znay.znay.tt.gfx.light.Light;
 import ru.znay.znay.tt.level.block.*;
 
 import java.util.ArrayList;
@@ -22,6 +21,7 @@ public class Level {
     public Block[] blocks;
     public Block solidWall = new SolidBlock();
     public List<Entity> entities = new ArrayList<Entity>();
+    public List<Light> lights = new ArrayList<Light>();
 
     public int floorSprite = 1 * 8;
     public int ceilSprite = -1;
@@ -36,7 +36,7 @@ public class Level {
         for (int z = 0; z < h; z++) {
             for (int x = 0; x < w; x++) {
                 int col = (pixmap.getPixel(x, z) >> 8) & 0xFFFFFF;
-                Block b = getBlock(col);
+                Block b = getBlock(x, z, col);
                 if (b.floorSprite == -1) b.floorSprite = floorSprite;
                 if (b.ceilSprite == -1) b.ceilSprite = ceilSprite;
                 blocks[x + z * w] = b;
@@ -51,22 +51,22 @@ public class Level {
         }
     }
 
-    public void decorateBlock(int x, int y, int col, Block b) {
-        b.decorate(this, x, y);
+    public void decorateBlock(int x, int z, int col, Block b) {
+        b.decorate(this, x, z);
         if (col == 0x0000FF) {
             xSpawn = x;
-            ySpawn = y;
+            ySpawn = z;
         }
         if (col == 0xFF0000) {
-            addEntity(new Enemy(x * 16, 0, y * 16));
+            addEntity(new Enemy(x * 16, 0, z * 16));
         }
     }
 
-    public Block getBlock(int col) {
+    public Block getBlock(int x, int z, int col) {
         if (col == 0x00FF00) return new GrassBlock();
         if (col == 0xFFFFFF) return new WallBlock();
         if (col == 0x008C00) return new TreeBlock();
-        if (col == 0xFF7921) return new TorchBlock();
+        if (col == 0xFF7921) return new TorchBlock(x, z);
         return new Block();
     }
 
@@ -79,91 +79,80 @@ public class Level {
     private Vector3 v = new Vector3();
     private Vector3 dim = new Vector3(16, 16, 16);
 
-    public void renderBlocks(Camera camera, PlaneBatch pb) {
+    public List<Light> buildAllToRender(Camera camera, PlaneBatch pb, SpriteBatch3D sb, int radius) {
+        lights.clear();
         float xCam = camera.position.x - camera.direction.x * 0.3f;
         float yCam = camera.position.z - camera.direction.z * 0.3f;
-
-        int r = 6;
 
         int xCenter = (int) (Math.floor(xCam / 16.0));
         int zCenter = (int) (Math.floor(yCam / 16.0));
 
-        for (int zb = zCenter - r; zb <= zCenter + r; zb++) {
-            for (int xb = xCenter - r; xb <= xCenter + r; xb++) {
+        for (int zb = zCenter - radius; zb <= zCenter + radius; zb++) {
+            for (int xb = xCenter - radius; xb <= xCenter + radius; xb++) {
                 Block c = getBlock(xb, zb);
                 Block e = getBlock(xb + 1, zb);
                 Block s = getBlock(xb, zb + 1);
 
-                v.set(xb * 16, 0, zb * 16);
-                if (!camera.frustum.boundsInFrustum(v, dim)) continue;
+                if (c instanceof TorchBlock) {
+                    lights.add(((TorchBlock) c).pointLight);
+                }
 
-                if (c.solidRender) {
-                    pb.setColor(c.r, c.g, c.b, c.a);
-                    int sx = (c.sprite % 8) * 16;
-                    int sy = (c.sprite / 8) * 16;
-                    if (!e.solidRender) {
-                        pb.addPlane(xb * 16, 0, zb * 16, 16, ModelData.rawDataRightOut, sx, sy, 16, 16);
-                    }
-                    if (!s.solidRender) {
-                        pb.addPlane(xb * 16, 0, zb * 16, 16, ModelData.rawDataFrontOut, sx, sy, 16, 16);
-                    }
-                } else {
-                    if (e.solidRender) {
-                        pb.setColor(e.r, e.g, e.b, e.a);
-                        int sx = (e.sprite % 8) * 16;
-                        int sy = (e.sprite / 8) * 16;
-                        pb.addPlane(xb * 16, 0, zb * 16, 16, ModelData.rawDataRightIn, sx, sy, 16, 16);
-                    }
-                    if (s.solidRender) {
-                        pb.setColor(s.r, s.g, s.b, s.a);
-                        int sx = (s.sprite % 8) * 16;
-                        int sy = (s.sprite / 8) * 16;
-                        pb.addPlane(xb * 16, 0, zb * 16, 16, ModelData.rawDataFrontIn, sx, sy, 16, 16);
-                    }
-
-                    pb.setColor(c.r, c.g, c.b, c.a);
-                    if (c.floorSprite != -1) {
-                        int sx = (c.floorSprite % 8) * 16;
-                        int sy = (c.floorSprite / 8) * 16;
-                        pb.addPlane(xb * 16, 0, zb * 16, 16, ModelData.rawDataBottomIn, sx, sy, 16, 16);
-                    }
-
-                    if (c.ceilSprite != -1) {
-                        int sx = (c.ceilSprite % 8) * 16;
-                        int sy = (c.ceilSprite / 8) * 16;
-                        pb.addPlane(xb * 16, 0, zb * 16, 16, ModelData.rawDataTopIn, sx, sy, 16, 16);
+                for (Entity entity : c.entities) {
+                    for (Sprite3D sprite : entity.sprites) {
+                        sprite.addSprite(entity.x, entity.y, entity.z, camera, sb);
                     }
                 }
+                for (Sprite3D sprite : c.sprites) {
+                    sprite.addSprite(xb * 16, 0, zb * 16, camera, sb);
+                }
+
+                //v.set(xb * 16, 0, zb * 16);
+                //if (!camera.frustum.boundsInFrustum(v, dim)) continue;
+                addBlockToRender(xb, zb, c, e, s, pb);
+
             }
         }
-
-        pb.renderAndReset(camera, new Matrix4());
+        return lights;
     }
 
-    public void renderSprites(Camera camera, SpriteBatch3D spriteBatch3D) {
-        float xCam = camera.position.x - camera.direction.x * 0.3f;
-        float yCam = camera.position.z - camera.direction.z * 0.3f;
+    private void addBlockToRender(int xb, int zb, Block c, Block e, Block s, PlaneBatch pb) {
+        if (c.solidRender) {
+            pb.setColor(c.r, c.g, c.b, c.a);
+            int sx = (c.sprite % 8) * 16;
+            int sy = (c.sprite / 8) * 16;
+            if (!e.solidRender) {
+                pb.addPlane(xb * 16, 0, zb * 16, 16, ModelData.rawDataRightOut, sx, sy, 16, 16);
+            }
+            if (!s.solidRender) {
+                pb.addPlane(xb * 16, 0, zb * 16, 16, ModelData.rawDataFrontOut, sx, sy, 16, 16);
+            }
+        } else {
+            if (e.solidRender) {
+                pb.setColor(e.r, e.g, e.b, e.a);
+                int sx = (e.sprite % 8) * 16;
+                int sy = (e.sprite / 8) * 16;
+                pb.addPlane(xb * 16, 0, zb * 16, 16, ModelData.rawDataRightIn, sx, sy, 16, 16);
+            }
+            if (s.solidRender) {
+                pb.setColor(s.r, s.g, s.b, s.a);
+                int sx = (s.sprite % 8) * 16;
+                int sy = (s.sprite / 8) * 16;
+                pb.addPlane(xb * 16, 0, zb * 16, 16, ModelData.rawDataFrontIn, sx, sy, 16, 16);
+            }
 
-        int r = 6;
+            pb.setColor(c.r, c.g, c.b, c.a);
+            if (c.floorSprite != -1) {
+                int sx = (c.floorSprite % 8) * 16;
+                int sy = (c.floorSprite / 8) * 16;
+                pb.addPlane(xb * 16, 0, zb * 16, 16, ModelData.rawDataBottomIn, sx, sy, 16, 16);
+            }
 
-        int xCenter = (int) (Math.floor(xCam / 16.0));
-        int zCenter = (int) (Math.floor(yCam / 16.0));
-
-        for (int zb = zCenter - r; zb <= zCenter + r; zb++) {
-            for (int xb = xCenter - r; xb <= xCenter + r; xb++) {
-
-                Block b = blocks[xb + zb * w];
-                for (Entity e : b.entities) {
-                    for (Sprite3D s : e.sprites) {
-                        s.addSprite(e.x, e.y, e.z, camera, spriteBatch3D);
-                    }
-                }
-                for (Sprite3D s : b.sprites) {
-                    s.addSprite(xb * 16, 0, zb * 16, camera, spriteBatch3D);
-                }
+            if (c.ceilSprite != -1) {
+                int sx = (c.ceilSprite % 8) * 16;
+                int sy = (c.ceilSprite / 8) * 16;
+                pb.addPlane(xb * 16, 0, zb * 16, 16, ModelData.rawDataTopIn, sx, sy, 16, 16);
             }
         }
-        spriteBatch3D.renderAndReset(new Matrix4());
     }
 
     public Block getBlock(int xt, int zt) {

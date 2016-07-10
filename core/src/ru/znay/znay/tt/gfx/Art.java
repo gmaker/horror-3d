@@ -6,6 +6,8 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import ru.znay.znay.tt.gfx.light.ShadowMap;
+import ru.znay.znay.tt.gfx.shader.*;
 import ru.znay.znay.tt.tool.R;
 
 /**
@@ -16,8 +18,11 @@ public class Art {
     public Texture sheet;
     public Texture blocks;
     public Pixmap level;
-    private ShaderProgram billboardShader;
-    private ShaderProgram planeShader;
+    public Shader billboardShader;
+    public Shader planeShader;
+    public Shader lightShader;
+    public Shader shadowShader;
+    public ShadowMap shadowMap;
     public SpriteBatch3D billboardBatch;
     public SpriteBatch spriteBatch2D;
     public PlaneBatch planeBatch;
@@ -35,10 +40,10 @@ public class Art {
         blocks = R.i.register(new Texture(Gdx.files.internal("blocks.png")));
         dithering = R.i.register(createDitheringTexture());
         font = R.i.register(new BitmapFont(true));
-        planeBatch = R.i.register(new PlaneBatch(3000, planeShader));
+        planeBatch = R.i.register(new PlaneBatch(3500, blocks));
         spriteBatch2D = R.i.register(new SpriteBatch());
-        billboardBatch = R.i.register(new SpriteBatch3D(3000, billboardShader));
-
+        billboardBatch = R.i.register(new SpriteBatch3D(3500, sheet));
+        shadowMap = new ShadowMap(shadowShader);
     }
 
     private Texture createDitheringTexture() {
@@ -65,14 +70,24 @@ public class Art {
     private void initShaders() {
         ShaderProgram.pedantic = false;
 
-        billboardShader = R.i.register(new ShaderProgram(Gdx.files.internal("shaders/billboard.vert"), Gdx.files.internal("shaders/billboard.frag")));
-        if (!billboardShader.isCompiled()) {
-            System.out.println(billboardShader.getLog());
+        billboardShader = new BillboardShader((ShaderProgram)R.i.register(new ShaderProgram(Gdx.files.internal("shaders/billboard.vert"), Gdx.files.internal("shaders/billboard.frag"))));
+        if (!billboardShader.shaderProgram.isCompiled()) {
+            System.out.println(billboardShader.shaderProgram.getLog());
         }
 
-        planeShader = R.i.register(new ShaderProgram(Gdx.files.internal("shaders/plane.vert"), Gdx.files.internal("shaders/plane.frag")));
-        if (!planeShader.isCompiled()) {
-            System.out.println(planeShader.getLog());
+        planeShader = new PlaneShader((ShaderProgram)R.i.register(new ShaderProgram(Gdx.files.internal("shaders/plane.vert"), Gdx.files.internal("shaders/plane.frag"))));
+        if (!planeShader.shaderProgram.isCompiled()) {
+            System.out.println(planeShader.shaderProgram.getLog());
+        }
+
+        lightShader = new LightShader((ShaderProgram)R.i.register(new ShaderProgram(Gdx.files.internal("shaders/light.vert"), Gdx.files.internal("shaders/light.frag"))));
+        if (!lightShader.shaderProgram.isCompiled()) {
+            System.out.println(lightShader.shaderProgram.getLog());
+        }
+
+        shadowShader = new ShadowShader((ShaderProgram)R.i.register(new ShaderProgram(Gdx.files.internal("shaders/shadow.vert"), Gdx.files.internal("shaders/shadow.frag"))));
+        if (!shadowShader.shaderProgram.isCompiled()) {
+            System.out.println(shadowShader.shaderProgram.getLog());
         }
     }
 }

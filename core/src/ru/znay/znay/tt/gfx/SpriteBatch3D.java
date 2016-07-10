@@ -2,14 +2,9 @@ package ru.znay.znay.tt.gfx;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.*;
-import com.badlogic.gdx.graphics.glutils.ShaderProgram;
-import com.badlogic.gdx.math.Matrix4;
-import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.NumberUtils;
-
-import javax.xml.soap.Text;
+import ru.znay.znay.tt.gfx.shader.Shader;
 
 /**
  * Created by admin on 19.06.2016.
@@ -36,25 +31,18 @@ public class SpriteBatch3D implements Disposable{
 
     boolean drawing = false;
 
-    private final Matrix4 projectMatrix = new Matrix4();
-    private final Matrix4 viewMatrix = new Matrix4();
-
-    private final ShaderProgram shader;
+    private Shader shader;
 
     float color = Color.WHITE.toFloatBits();
-    private Color tempColor = new Color(1, 1, 1, 1);
-
     public int renderCalls = 0;
     public int totalRenderCalls = 0;
     public int maxSpritesInBatch = 0;
-    private Color fogColor;
-    private float angleWave;
-    private float amplitudeWave;
-    public BoundingBox bb = new BoundingBox();
+
     private Texture texture;
     private float invTexWidth;
     private float invTexHeight;
-    public SpriteBatch3D(int size, ShaderProgram shader) {
+
+    public SpriteBatch3D(int size, Texture texture) {
         // 32767 is max index, so 32767 / 8 - (32767 / 8 % 3) = 4095.
         if (size > 32767 / VERTEX_SIZE - ((32767 / VERTEX_SIZE) % 3)) throw new IllegalArgumentException("Can't have more than 4095 sprites per batch: " + size);
 
@@ -80,12 +68,7 @@ public class SpriteBatch3D implements Disposable{
             indices[i + 5] = j;
         }
         mesh.setIndices(indices);
-        this.shader = shader;
-    }
-
-    public void setWave(float angleWave, float amplitudeWave) {
-        this.angleWave = angleWave;
-        this.amplitudeWave = amplitudeWave;
+        setTexture(texture);
     }
 
     public void setTexture(Texture texture) {
@@ -94,26 +77,16 @@ public class SpriteBatch3D implements Disposable{
         invTexHeight = 1.0f / texture.getHeight();
     }
 
-    public void setFogColor(Color fogColor) {
-        this.fogColor = fogColor;
-    }
-
-    public void begin(Camera camera) {
-        if (drawing) throw new IllegalStateException("SpriteBatch3D.end must be called before begin.");
+    public void begin(Shader shader, Camera camera) {
+        this.shader = shader;
         renderCalls = 0;
 
-        projectMatrix.set(camera.projection);
-        viewMatrix.set(camera.view);
-
-        shader.begin();
+        shader.begin(camera);
 
         drawing = true;
     }
 
     public void end() {
-        if (!drawing) throw new IllegalStateException("SpriteBatch3D.begin must be called before end.");
-        drawing = false;
-
         shader.end();
     }
 
@@ -130,8 +103,6 @@ public class SpriteBatch3D implements Disposable{
 
     public void addSprite(float x, float y, float z, float sx, float sy, float w, float h, float xo, float yo) {
         float[] vertices = this.vertices;
-
-        bb.ext(new Vector3(x, y, z));
 
         final float u = sx * invTexWidth;
         final float u2 = (sx + w) * invTexWidth;
@@ -179,18 +150,10 @@ public class SpriteBatch3D implements Disposable{
         this.idx = idx;
     }
 
-    public void render(Matrix4 modelMatrix) {
+    public void render() {
         if (idx == 0) return;
 
-        shader.setUniformf("u_fogColor", fogColor);
-        shader.setUniformf("u_waveData", angleWave, amplitudeWave);
-        shader.setUniformMatrix("u_projectMatrix", projectMatrix);
-        shader.setUniformMatrix("u_viewMatrix", viewMatrix);
-        shader.setUniformMatrix("u_modelMatrix", modelMatrix);
         texture.bind(0);
-        shader.setUniformi("u_texture", 0);
-        Art.i.dithering.bind(1);
-        shader.setUniformi("u_dithering", 1);
 
         renderCalls++;
         totalRenderCalls++;
@@ -203,16 +166,15 @@ public class SpriteBatch3D implements Disposable{
         mesh.getIndicesBuffer().position(0);
         mesh.getIndicesBuffer().limit(count);
 
-        mesh.render(shader, GL20.GL_TRIANGLES, 0, count);
+        mesh.render(shader.shaderProgram, GL20.GL_TRIANGLES, 0, count);
     }
 
     public void reset() {
         idx = 0;
-        bb.clr();
     }
 
-    public void renderAndReset(Matrix4 modelMatrix) {
-        render(modelMatrix);
+    public void renderAndReset() {
+        render();
         reset();
     }
 
