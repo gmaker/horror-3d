@@ -52,7 +52,7 @@ public class TorchBlock extends Block {
             torchSprite.setSprite(frame * 16, 4 * 16, 16, 16);
         }
         if (tickTime++ % 60 == 0) {
-            pointLight.needsUpdate = true;
+           // pointLight.needsUpdate = true;
         }
     }
 }

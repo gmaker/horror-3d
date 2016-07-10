@@ -18,7 +18,7 @@ public class R implements Disposable {
 
     }
 
-    public <T> T register(Disposable disposable) {
+    public <T extends Disposable> T register(Disposable disposable) {
         disposables.add(disposable);
         return (T) disposable;
     }

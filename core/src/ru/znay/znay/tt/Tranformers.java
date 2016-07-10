@@ -6,8 +6,8 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.ExtendViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 import ru.znay.znay.tt.entity.Player;
 import ru.znay.znay.tt.gfx.Art;
 import ru.znay.znay.tt.gfx.PlaneBatch;
@@ -29,7 +29,7 @@ public class Tranformers extends Game {
     private long lastTime = System.nanoTime();
     private double iNsPerSec = 60.0 / 1000000000.0;
     private Player player;
-    public Stage stage;
+    private Viewport viewport;
 
     public void create() {
         camera = new PerspectiveCamera(70.0f, C.WIDTH, C.HEIGHT);
@@ -37,7 +37,7 @@ public class Tranformers extends Game {
         camera.far = 128f;
         camera.update();
 
-        stage = new Stage(new FitViewport(C.WIDTH, C.HEIGHT, camera));
+        viewport = new ExtendViewport(C.WIDTH, C.HEIGHT, camera);
 
         Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
         Gdx.gl.glDepthMask(true);
@@ -63,7 +63,7 @@ public class Tranformers extends Game {
 
     @Override
     public void resize(int width, int height) {
-        stage.getViewport().update(width, height, false);
+        viewport.update(width, height);
     }
 
 
@@ -123,7 +123,7 @@ public class Tranformers extends Game {
 
     private void renderScene(PlaneBatch pb, SpriteBatch3D sb) {
         Gdx.gl.glClearColor(C.FOG_COLOR.r, C.FOG_COLOR.g, C.FOG_COLOR.b, 1.0f);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT | (Gdx.graphics.getBufferFormat().coverageSampling ? GL20.GL_COVERAGE_BUFFER_BIT_NV : 0));
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT /*| (Gdx.graphics.getBufferFormat().coverageSampling ? GL20.GL_COVERAGE_BUFFER_BIT_NV : 0)*/);
 
         Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
         Gdx.gl.glDepthMask(true);

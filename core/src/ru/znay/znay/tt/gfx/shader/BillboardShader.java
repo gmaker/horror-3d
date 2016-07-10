@@ -18,7 +18,9 @@ public class BillboardShader extends Shader {
     @Override
     public void setUniforms(Camera camera) {
         final int textureNum = 4;
-        Art.i.shadowMap.frameBufferShadows.getColorBufferTexture().bind(textureNum);
+        if (Art.i.shadowMap.frameBufferShadows != null) {
+            Art.i.shadowMap.frameBufferShadows.getColorBufferTexture().bind(textureNum);
+        }
         shaderProgram.setUniformi("u_shadows", textureNum);
         shaderProgram.setUniformf("u_screenWidth", Gdx.graphics.getWidth());
         shaderProgram.setUniformf("u_screenHeight", Gdx.graphics.getHeight());

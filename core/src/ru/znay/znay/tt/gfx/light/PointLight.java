@@ -11,6 +11,7 @@ import ru.znay.znay.tt.gfx.Art;
 import ru.znay.znay.tt.gfx.FrameBufferCubeMap;
 import ru.znay.znay.tt.gfx.PlaneBatch;
 import ru.znay.znay.tt.gfx.shader.Shader;
+import ru.znay.znay.tt.tool.R;
 
 /**
  * Created by admin on 09.07.2016.
@@ -37,7 +38,7 @@ public class PointLight extends Light {
     public void initCamera() {
         camera = new PerspectiveCamera(90f, C.DEPTH_MAP_SIZE, C.DEPTH_MAP_SIZE);
         camera.near = 1f;
-        camera.far =32.0f;
+        camera.far = 32.0f;
         camera.position.set(pos);
         camera.update();
     }
@@ -47,7 +48,7 @@ public class PointLight extends Light {
         needsUpdate = false;
 
         if (frameBuffer == null) {
-            frameBuffer = new FrameBufferCubeMap(Pixmap.Format.RGBA8888, C.DEPTH_MAP_SIZE, true, false);
+            frameBuffer = R.i.register(new FrameBufferCubeMap(Pixmap.Format.RGBA8888, C.DEPTH_MAP_SIZE, true, false));
         }
         Gdx.gl.glDepthFunc(GL20.GL_LEQUAL);
         Gdx.gl.glCullFace(GL20.GL_FRONT);
@@ -61,7 +62,6 @@ public class PointLight extends Light {
             pb.render();
             pb.end();
         }
-
         frameBuffer.end();
         depthMap = frameBuffer.getColorBufferTexture();
     }
