@@ -95,19 +95,19 @@ public class SpriteBatch3D implements Disposable{
         color = NumberUtils.intToFloatColor(intBits);
     }
 
-    public void addSprite(float x, float y, float z, float sx, float sy, float w, float h) {
-        final float xo = -w / 2.0f;
-        final float yo = -h / 2.0f;
-        addSprite(x, y, z, sx, sy, w, h, xo, yo);
-    }
-
-    public void addSprite(float x, float y, float z, float sx, float sy, float w, float h, float xo, float yo) {
+    public void addSprite(float x, float y, float z, float sx, float sy, float w, float h, float xo, float yo, float scale) {
         float[] vertices = this.vertices;
+
 
         final float u = sx * invTexWidth;
         final float u2 = (sx + w) * invTexWidth;
         final float v = (sy + h) * invTexHeight;
         final float v2 = sy * invTexHeight;
+
+        w *= scale;
+        h *= scale;
+        xo *= scale;
+        yo *= scale;
 
         float color = this.color;
         int idx = this.idx;

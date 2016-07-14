@@ -3,6 +3,7 @@ package ru.znay.znay.tt.level.block;
 import ru.znay.znay.tt.entity.Entity;
 import ru.znay.znay.tt.gfx.Sprite3D;
 import ru.znay.znay.tt.level.Level;
+import ru.znay.znay.tt.particle.Particle;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +16,7 @@ public class Block {
     public static final Random random = new Random();
     public List<Sprite3D> sprites = new ArrayList<Sprite3D>();
     public List<Entity> entities = new ArrayList<Entity>();
-    public Level level;
+    public List<Particle> particles = new ArrayList<Particle>();
     public boolean blockMotion = false;
     public boolean solidRender = false;
     public int sprite = -1;
@@ -25,9 +26,12 @@ public class Block {
     public float g = 1.0f;
     public float b = 1.0f;
     public float a = 1.0f;
+    public final int xt;
+    public final int zt;
 
-    public void init(Level level) {
-        this.level = level;
+    public Block(int xt, int zt) {
+        this.xt = xt;
+        this.zt = zt;
     }
 
     public void addEntity(Entity e) {
@@ -42,7 +46,7 @@ public class Block {
         return false;
     }
 
-    public void tick() {
+    public void tick(Level level) {
         for (int i = 0; i < sprites.size(); i++) {
             Sprite3D sprite = sprites.get(i);
             sprite.tick();
@@ -54,5 +58,13 @@ public class Block {
 
     public void decorate(Level level, int x, int y) {
 
+    }
+
+    public void removeParticle(Particle p) {
+        particles.remove(p);
+    }
+
+    public void addParticle(Particle p) {
+        particles.add(p);
     }
 }

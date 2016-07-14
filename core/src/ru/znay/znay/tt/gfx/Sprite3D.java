@@ -11,6 +11,7 @@ public class Sprite3D {
     private float sx, sy, sw, sh;
     private float xo, yo;
     public boolean removed = false;
+    public float scale = 1.0f;
 
     public Sprite3D(float x, float y, float z, float sx, float sy, float sw, float sh) {
         this(x, y, z, sx, sy, sw, sh, -sw / 2, -sh / 2);
@@ -37,11 +38,17 @@ public class Sprite3D {
         return this;
     }
 
-    public void setSprite(float sx, float sy, float sw, float sh) {
+    public Sprite3D set(float sx, float sy, float sw, float sh) {
         this.sx = sx;
         this.sy = sy;
         this.sw = sw;
         this.sh = sh;
+        return this;
+    }
+
+    public Sprite3D scale(float scale) {
+        this.scale = scale;
+        return this;
     }
 
     public final void addSprite(Camera camera, SpriteBatch3D spriteBatch3D) {
@@ -51,7 +58,7 @@ public class Sprite3D {
     public final void addSprite(float xo, float yo, float zo, Camera camera, SpriteBatch3D spriteBatch3D) {
         if (camera.frustum.sphereInFrustum(x + xo, y + yo, z + zo, 8.0f)) {
             spriteBatch3D.setColor(r, g, b, a);
-            spriteBatch3D.addSprite(x + xo, y + yo, z + zo, sx, sy, sw, sh, this.xo, this.yo);
+            spriteBatch3D.addSprite(x + xo, y + yo, z + zo, sx, sy, sw, sh, this.xo, this.yo, scale);
         }
     }
 

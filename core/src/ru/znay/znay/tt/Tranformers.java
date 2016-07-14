@@ -34,7 +34,7 @@ public class Tranformers extends Game {
     public void create() {
         camera = new PerspectiveCamera(70.0f, C.WIDTH, C.HEIGHT);
         camera.near = 1f;
-        camera.far = 128f;
+        camera.far = 300f;
         camera.update();
 
         viewport = new ExtendViewport(C.WIDTH, C.HEIGHT, camera);
@@ -83,6 +83,9 @@ public class Tranformers extends Game {
                 Gdx.input.isKeyPressed(Input.Keys.D),
                 Gdx.input.isKeyPressed(Input.Keys.Q),
                 Gdx.input.isKeyPressed(Input.Keys.E));
+        if(Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
+            player.use();
+        }
         updateCam(player);
     }
 
@@ -100,7 +103,7 @@ public class Tranformers extends Game {
         PlaneBatch pb = Art.i.planeBatch;
         SpriteBatch3D sb = Art.i.billboardBatch;
 
-        List<Light> lights = level.buildAllToRender(camera, pb, sb, 6);
+        List<Light> lights = level.buildAllToRender(camera, pb, sb, 10);
 
         renderLights(lights, pb);
         renderShadows(lights, pb);
@@ -108,6 +111,25 @@ public class Tranformers extends Game {
 
         pb.reset();
         sb.reset();
+
+        if (player.item != null) {
+            Vector3 f = camera.direction.cpy().scl(8.0f);
+            Vector3 u = camera.up.cpy();
+            Vector3 r = u.crs(f).nor();
+            r.scl(player.turnBob * 32.0f + 2);
+            float yy = (float) (Math.sin(player.bobPhase * 0.4) * 0.2 * player.bob /*+ player.bob * 1*/) - 2;
+
+            if (player.itemUseTime == 0) {
+                yy -= 6;
+            }
+
+            player.item.sprite.addSprite(player.x + f.x - r.x, yy, player.z + f.z - r.z, camera, sb);
+        }
+        Gdx.gl.glDisable(GL20.GL_DEPTH_TEST);
+        sb.begin(Art.i.billboardShader, camera);
+        sb.renderAndReset();
+        sb.end();
+        Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
     }
 
     private void renderLights(List<Light> lights, PlaneBatch pb) {

@@ -8,6 +8,7 @@ import ru.znay.znay.tt.entity.Entity;
 import ru.znay.znay.tt.gfx.*;
 import ru.znay.znay.tt.gfx.light.Light;
 import ru.znay.znay.tt.level.block.*;
+import ru.znay.znay.tt.particle.Particle;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,13 +20,15 @@ public class Level {
     public final int w;
     public final int h;
     public Block[] blocks;
-    public Block solidWall = new SolidBlock();
+    public Block solidWall = new SolidBlock(-1, -1);
     public List<Entity> entities = new ArrayList<Entity>();
     public List<Light> lights = new ArrayList<Light>();
+    public List<Particle> particles = new ArrayList<Particle>();
 
     public int floorSprite = 1 * 8;
     public int ceilSprite = -1;
 
+    public int tickTime = 0;
     public int xSpawn;
     public int ySpawn;
 
@@ -63,17 +66,24 @@ public class Level {
     }
 
     public Block getBlock(int x, int z, int col) {
-        if (col == 0x00FF00) return new GrassBlock();
-        if (col == 0xFFFFFF) return new WallBlock();
-        if (col == 0x008C00) return new TreeBlock();
+        if (col == 0x00FF00) return new GrassBlock(x, z);
+        if (col == 0xFFFFFF) return new WallBlock(x, z);
+        if (col == 0x008C00) return new TreeBlock(x, z);
         if (col == 0xFF7921) return new TorchBlock(x, z);
-        return new Block();
+        if (col == 0x821C1C) return new FireBlock(x, z);
+        return new Block(x, z);
     }
 
     public void addEntity(Entity e) {
         entities.add(e);
         e.init(this);
         e.updatePos();
+    }
+
+    public void addParticle(Particle p) {
+        particles.add(p);
+        p.init(this);
+        p.updatePos();
     }
 
     private Vector3 v = new Vector3();
@@ -97,6 +107,10 @@ public class Level {
                     lights.add(((TorchBlock) c).pointLight);
                 }
 
+                if (c instanceof FireBlock) {
+                    lights.add(((FireBlock) c).pointLight);
+                }
+
                 for (Entity entity : c.entities) {
                     for (Sprite3D sprite : entity.sprites) {
                         sprite.addSprite(entity.x, entity.y, entity.z, camera, sb);
@@ -104,6 +118,10 @@ public class Level {
                 }
                 for (Sprite3D sprite : c.sprites) {
                     sprite.addSprite(xb * 16, 0, zb * 16, camera, sb);
+                }
+
+                for (Particle p : c.particles) {
+                    p.sprite.addSprite(p.x, p.y, p.z, camera, sb);
                 }
 
                 //v.set(xb * 16, 0, zb * 16);
@@ -163,6 +181,7 @@ public class Level {
     }
 
     public void tick() {
+        tickTime++;
         for (int i = 0; i < entities.size(); i++) {
             Entity e = entities.get(i);
             e.tick();
@@ -172,9 +191,18 @@ public class Level {
             }
         }
 
+        for (int i = 0; i < particles.size(); i++) {
+            Particle p = particles.get(i);
+            p.tick();
+            p.updatePos();
+            if (p.removed) {
+                particles.remove(i--);
+            }
+        }
+
         for (int y = 0; y < h; y++) {
             for (int x = 0; x < w; x++) {
-                blocks[x + y * w].tick();
+                blocks[x + y * w].tick(this);
             }
         }
     }

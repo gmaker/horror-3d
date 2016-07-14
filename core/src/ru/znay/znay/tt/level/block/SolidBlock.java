@@ -6,8 +6,8 @@ import ru.znay.znay.tt.entity.Entity;
  * Created by admin on 28.06.2016.
  */
 public class SolidBlock extends Block {
-    public SolidBlock() {
-        super();
+    public SolidBlock(int xt, int zt) {
+        super(xt, zt);
         solidRender = true;
         blockMotion = true;
     }

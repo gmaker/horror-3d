@@ -25,14 +25,14 @@ public class Enemy extends Mob {
         xa *= friction;
         za *= friction;
         tickTime++;
-        int frame = steps[tickTime / 15 % steps.length];
-        sprite.setSprite(32 + frame * 16, 0, 16, 16);
+        int frame = steps[(int)movement / 10 % steps.length];
+        sprite.set(32 + frame * 16, 0, 16, 16);
     }
 
     protected Order getNextOrder() {
         Order order = Order.idle;
         if (Math.random() < 0.2) {
-            order = new MoveOrder(x + (float)(Math.random() * 2.0 - 1.0) * 8.0f, z + (float)(Math.random() * 2.0 - 1.0) * 8.0f);
+           // order = new MoveOrder(x + (float)(Math.random() * 2.0 - 1.0) * 8.0f, z + (float)(Math.random() * 2.0 - 1.0) * 8.0f);
         }
         return order;
     }

@@ -21,6 +21,7 @@ public class Entity {
     public boolean removed = false;
     public int xTileO = -1;
     public int zTileO = -1;
+    public float movement = 0.0f;
 
     public Entity(float x, float y, float z) {
         this.x = x;
@@ -34,6 +35,7 @@ public class Entity {
             float xxa = xa;
             if (isFree(x + xxa * i / xSteps, z)) {
                 x += xxa * i / xSteps;
+                movement += Math.abs(xxa * i / xSteps);
                 break;
             } else {
                 xa = 0;
@@ -45,6 +47,7 @@ public class Entity {
             float zza = za;
             if (isFree(x, z + zza * i / zSteps)) {
                 z += zza * i / zSteps;
+                movement += Math.abs(zza * i / zSteps);
                 break;
             } else {
                 za = 0;
@@ -116,6 +119,10 @@ public class Entity {
             zTileO = zTile;
             if (!removed) level.getBlock(xTileO, zTileO).addEntity(this);
         }
+    }
 
+    public void remove() {
+        level.getBlock(xTileO, zTileO).removeEntity(this);
+        removed = true;
     }
 }

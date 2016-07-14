@@ -15,7 +15,7 @@ varying vec4 v_pos;
 
 void main() {
 	vec4 col = texture2D(u_texture, v_uv);
-	if (col.a < 0.9) discard;
+	if (col.a < 0.1) discard;
 
 	vec2 c = gl_FragCoord.xy;
 	c.x /= u_screenWidth;

@@ -4,6 +4,9 @@ import com.badlogic.gdx.math.Vector3;
 import ru.znay.znay.tt.gfx.Sprite3D;
 import ru.znay.znay.tt.gfx.light.PointLight;
 import ru.znay.znay.tt.level.Level;
+import ru.znay.znay.tt.particle.FireParticle;
+import ru.znay.znay.tt.particle.Particle;
+import ru.znay.znay.tt.particle.SmokeParticle;
 
 import java.util.Random;
 
@@ -13,9 +16,9 @@ import java.util.Random;
 public class TorchBlock extends Block {
     public Sprite3D torchSprite;
     public PointLight pointLight;
-    public int tickTime = 0;
 
     public TorchBlock(int xt, int zt) {
+        super(xt, zt);
         torchSprite = new Sprite3D(0, 0, 0, 0, 4 * 16, 16, 16);
         sprites.add(torchSprite);
         pointLight = new PointLight(new Vector3(xt * 16, +4.0f, zt * 16), 50.0f);
@@ -45,13 +48,13 @@ public class TorchBlock extends Block {
         }
     }
 
-    public void tick() {
-        super.tick();
-        if (random.nextInt(4) == 0) {
-            int frame = random.nextInt(2);
-            torchSprite.setSprite(frame * 16, 4 * 16, 16, 16);
+    public void tick(Level level) {
+        super.tick(level);
+        if (level.tickTime % 10 == 0) {
+            Particle p = new FireParticle(xt * 16 + torchSprite.x, 2, zt * 16 + torchSprite.z);
+            level.addParticle(p);
         }
-        if (tickTime++ % 60 == 0) {
+        if (level.tickTime % 60 == 0) {
             pointLight.needsUpdate = true;
         }
     }
