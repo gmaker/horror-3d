@@ -3,8 +3,9 @@ package ru.znay.znay.tt;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.PerspectiveCamera;
+import com.badlogic.gdx.graphics.*;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -18,10 +19,11 @@ import ru.znay.znay.tt.tool.R;
 
 import java.util.List;
 
-public class Tranformers extends Game {
+public class GoldMiner extends Game {
 
     private PerspectiveCamera camera;
-
+    private OrthographicCamera scaledCamera;
+    private FrameBuffer sceneBuffer;
 
     private int tickTime = 0;
     private Level level;
@@ -31,13 +33,22 @@ public class Tranformers extends Game {
     private Player player;
     private Viewport viewport;
 
+
     public void create() {
+        sceneBuffer = R.i.register(new FrameBuffer(Pixmap.Format.RGBA8888, C.WIDTH, C.HEIGHT, true));
+        sceneBuffer.getColorBufferTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+
         camera = new PerspectiveCamera(70.0f, C.WIDTH, C.HEIGHT);
         camera.near = 1f;
         camera.far = 300f;
         camera.update();
 
-        viewport = new ExtendViewport(C.WIDTH, C.HEIGHT, camera);
+        scaledCamera = new OrthographicCamera();
+        scaledCamera.position.set(C.WIDTH / 2.0f, C.HEIGHT / 2.0f, 0);
+        scaledCamera.setToOrtho(true, C.WIDTH, C.HEIGHT);
+        scaledCamera.update();
+
+        viewport = new ExtendViewport(C.WIDTH, C.HEIGHT, scaledCamera);
 
         Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
         Gdx.gl.glDepthMask(true);
@@ -63,15 +74,14 @@ public class Tranformers extends Game {
 
     @Override
     public void resize(int width, int height) {
-        viewport.update(width, height);
+        viewport.update(width, height, false);
     }
-
 
     public void tick() {
         tickTime++;
 
         if (tickTime % 60 == 0) {
-            System.out.println(Gdx.graphics.getFramesPerSecond());
+            //System.out.println(Gdx.graphics.getFramesPerSecond());
         }
 
         level.tick();
@@ -83,7 +93,7 @@ public class Tranformers extends Game {
                 Gdx.input.isKeyPressed(Input.Keys.D),
                 Gdx.input.isKeyPressed(Input.Keys.Q),
                 Gdx.input.isKeyPressed(Input.Keys.E));
-        if(Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
             player.use();
         }
         updateCam(player);
@@ -91,7 +101,6 @@ public class Tranformers extends Game {
 
     @Override
     public void render() {
-
         long now = System.nanoTime();
         unprocessed += (now - lastTime) * iNsPerSec;
         lastTime = now;
@@ -103,28 +112,50 @@ public class Tranformers extends Game {
         PlaneBatch pb = Art.i.planeBatch;
         SpriteBatch3D sb = Art.i.billboardBatch;
 
-        List<Light> lights = level.buildAllToRender(camera, pb, sb, 10);
+        List<Light> lights = level.buildAllToRender(camera, pb, sb, 8);
 
         renderLights(lights, pb);
         renderShadows(lights, pb);
+        sceneBuffer.begin();
         renderScene(pb, sb);
 
         pb.reset();
         sb.reset();
 
-        if (player.item != null) {
-            Vector3 f = camera.direction.cpy().scl(8.0f);
-            Vector3 u = camera.up.cpy();
-            Vector3 r = u.crs(f).nor();
-            r.scl(player.turnBob * 32.0f + 2);
-            float yy = (float) (Math.sin(player.bobPhase * 0.4) * 0.2 * player.bob /*+ player.bob * 1*/) - 2;
+        renderPlayerItem(sb);
+        sceneBuffer.end();
 
-            if (player.itemUseTime == 0) {
-                yy -= 6;
-            }
+        scaledCamera.update();
+        Gdx.gl.glDisable(GL20.GL_CULL_FACE);
+        Gdx.gl.glClearColor(C.FOG_COLOR.r, C.FOG_COLOR.g, C.FOG_COLOR.b, 1.0f);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
-            player.item.sprite.addSprite(player.x + f.x - r.x, yy, player.z + f.z - r.z, camera, sb);
+        SpriteBatch sb2d = Art.i.spriteBatch2D;
+        sb2d.setProjectionMatrix(scaledCamera.combined);
+        sb2d.begin();
+        sb2d.draw(sceneBuffer.getColorBufferTexture(), 0, 0);
+        renderGui(sb2d);
+        sb2d.end();
+        Gdx.gl.glEnable(GL20.GL_CULL_FACE);
+    }
+
+    private void renderGui(SpriteBatch sb2d) {
+        Art.i.font.draw(sb2d, "FPS: " + Gdx.graphics.getFramesPerSecond(), 1, 1);
+    }
+
+    private void renderPlayerItem(SpriteBatch3D sb) {
+        if (player.item == null) return;
+        Vector3 f = camera.direction.cpy().scl(8f);
+        Vector3 u = camera.up.cpy();
+        Vector3 r = u.crs(f).nor();
+        r.scl(player.turnBob * 32.0f + 4);
+        float yy = (float) (Math.sin(player.bobPhase * 0.4) * 0.2 * player.bob + player.bob * 1) - 2;
+
+        if (player.itemUseTime == 0) {
+            yy -= 6;
         }
+
+        player.item.animation.current().addSprite(player.x + f.x - r.x, yy, player.z + f.z - r.z, camera, sb);
         Gdx.gl.glDisable(GL20.GL_DEPTH_TEST);
         sb.begin(Art.i.billboardShader, camera);
         sb.renderAndReset();
@@ -144,6 +175,7 @@ public class Tranformers extends Game {
     }
 
     private void renderScene(PlaneBatch pb, SpriteBatch3D sb) {
+        Gdx.gl.glViewport(0, 0, sceneBuffer.getWidth(), sceneBuffer.getHeight());
         Gdx.gl.glClearColor(C.FOG_COLOR.r, C.FOG_COLOR.g, C.FOG_COLOR.b, 1.0f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT /*| (Gdx.graphics.getBufferFormat().coverageSampling ? GL20.GL_COVERAGE_BUFFER_BIT_NV : 0)*/);
 

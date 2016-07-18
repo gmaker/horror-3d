@@ -63,7 +63,7 @@ public class PointLight extends Light {
             pb.render();
             pb.end();
         }
-        frameBuffer.end();
+        frameBuffer.end(0,0, C.WIDTH, C.HEIGHT);
         depthMap = frameBuffer.getColorBufferTexture();
     }
 }

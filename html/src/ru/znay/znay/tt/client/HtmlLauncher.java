@@ -3,7 +3,7 @@ package ru.znay.znay.tt.client;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.backends.gwt.GwtApplication;
 import com.badlogic.gdx.backends.gwt.GwtApplicationConfiguration;
-import ru.znay.znay.tt.Tranformers;
+import ru.znay.znay.tt.GoldMiner;
 
 public class HtmlLauncher extends GwtApplication {
 
@@ -14,6 +14,6 @@ public class HtmlLauncher extends GwtApplication {
 
         @Override
         public ApplicationListener createApplicationListener () {
-                return new Tranformers();
+                return new GoldMiner();
         }
 }

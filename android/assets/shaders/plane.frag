@@ -25,7 +25,7 @@ void main() {
 
     float br = clamp(16.0 / dot(v_pos.xyz, v_pos.xyz) * 16.0, 0.0, 1.0);
 
-	float dither = texture2D(u_dithering, mod(gl_FragCoord.xy / 2.0, 4.0) / 4.0).a * 16.0;
+	float dither = texture2D(u_dithering, mod(gl_FragCoord.xy / 1.0, 4.0) / 4.0).a * 16.0;
 	if (br < dither) {
 		br *= 0.86;
 	}

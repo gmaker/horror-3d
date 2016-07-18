@@ -39,7 +39,9 @@ public class Art {
         sheet = R.i.register(new Texture(Gdx.files.internal("sheet.png")));
         blocks = R.i.register(new Texture(Gdx.files.internal("blocks.png")));
         dithering = R.i.register(createDitheringTexture());
-        font = R.i.register(new BitmapFont(true));
+        font = R.i.register(new BitmapFont(Gdx.files.internal("fonts/font.fnt"), true));
+        font.getRegion().getTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        font.getData().setScale(0.2f);
         planeBatch = R.i.register(new PlaneBatch(3500, blocks));
         spriteBatch2D = R.i.register(new SpriteBatch());
         billboardBatch = R.i.register(new SpriteBatch3D(3500, sheet));
@@ -54,7 +56,7 @@ public class Art {
                 16, 8, 14, 6
         };
 
-        Pixmap pixmap = new Pixmap(4, 4, Pixmap.Format.Alpha);
+        Pixmap pixmap = new Pixmap(4, 4, Pixmap.Format.RGBA8888);
 
         for (int x = 0; x < 4; x++) {
             for (int y = 0; y < 4; y++) {

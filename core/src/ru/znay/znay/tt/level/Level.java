@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.math.Vector3;
 import ru.znay.znay.tt.entity.Enemy;
 import ru.znay.znay.tt.entity.Entity;
+import ru.znay.znay.tt.entity.ore.Ore;
 import ru.znay.znay.tt.gfx.*;
 import ru.znay.znay.tt.gfx.light.Light;
 import ru.znay.znay.tt.level.block.*;
@@ -60,9 +61,8 @@ public class Level {
             xSpawn = x;
             ySpawn = z;
         }
-        if (col == 0xFF0000) {
-            addEntity(new Enemy(x * 16, 0, z * 16));
-        }
+        if (col == 0xFF0000) addEntity(new Enemy(x * 16, 0, z * 16));
+        if (col == 0x808080) addEntity(new Ore(x * 16, 0, z * 16));
     }
 
     public Block getBlock(int x, int z, int col) {

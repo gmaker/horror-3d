@@ -12,18 +12,26 @@ public class Player extends Mob {
     public float bob = 0.0f;
     public float bobPhase = 0.0f;
     public float turnBob = 0.0f;
-    public Item item;
+    public Item item = Item.pick;
     public int itemUseTime = 0;
 
     public Player(float x, float y, float z) {
         super(x, y, z);
         rot = (float) -Math.PI / 2.0f;
-        this.item = new Item();
     }
 
     public void tick(boolean up, boolean down, boolean left, boolean right, boolean turnLeft, boolean turnRight) {
-        this.item.sprite.set((itemUseTime / 10) % 3 * 16, 6 * 16, 16, 16);
-        if (itemUseTime > 0) itemUseTime--;
+        if (item != null) {
+            item.tick();
+            if (itemUseTime > 0) {
+                item.animation.start();
+                itemUseTime--;
+                if (itemUseTime == 0) {
+                    item.animation.stop();
+                }
+            }
+        }
+
         if (turnLeft) rotA += rotSpeed;
         if (turnRight) rotA -= rotSpeed;
 
@@ -60,7 +68,8 @@ public class Player extends Mob {
     }
 
     public void use() {
+        if (item == null) return;
         if (itemUseTime > 0) return;
-        itemUseTime = 30;
+        itemUseTime = item.animation.time * item.animation.frames;
     }
 }

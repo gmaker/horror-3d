@@ -3,7 +3,7 @@ package ru.znay.znay.tt.desktop;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import ru.znay.znay.tt.C;
-import ru.znay.znay.tt.Tranformers;
+import ru.znay.znay.tt.GoldMiner;
 
 public class DesktopLauncher {
     public static void main(String[] arg) {
@@ -13,6 +13,6 @@ public class DesktopLauncher {
         config.vSyncEnabled = false;
         config.backgroundFPS = 10000;
         config.foregroundFPS = 10000;
-        new LwjglApplication(new Tranformers(), config);
+        new LwjglApplication(new GoldMiner(), config);
     }
 }

@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
+import ru.znay.znay.tt.C;
 import ru.znay.znay.tt.gfx.PlaneBatch;
 import ru.znay.znay.tt.gfx.shader.Shader;
 import ru.znay.znay.tt.tool.R;
@@ -24,7 +25,7 @@ public class ShadowMap {
 
     public void render(Camera camera, PlaneBatch pb, List<Light> lights) {
         if (frameBufferShadows == null) {
-            frameBufferShadows = R.i.register(new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true));
+            frameBufferShadows = R.i.register(new FrameBuffer(Pixmap.Format.RGBA8888, C.WIDTH, C.HEIGHT, true));
         }
 
         frameBufferShadows.begin();
@@ -56,6 +57,6 @@ public class ShadowMap {
                 pb.end();
             }
         }
-        frameBufferShadows.end();
+        frameBufferShadows.end(0, 0, C.WIDTH, C.HEIGHT);
     }
 }

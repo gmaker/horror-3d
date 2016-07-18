@@ -20,8 +20,8 @@ public class PlaneShader extends Shader {
             Art.i.shadowMap.frameBufferShadows.getColorBufferTexture().bind(textureNum);
         }
         shaderProgram.setUniformi("u_shadows", textureNum);
-        shaderProgram.setUniformf("u_screenWidth", Gdx.graphics.getWidth());
-        shaderProgram.setUniformf("u_screenHeight", Gdx.graphics.getHeight());
+        shaderProgram.setUniformf("u_screenWidth", C.WIDTH);
+        shaderProgram.setUniformf("u_screenHeight", C.HEIGHT);
         shaderProgram.setUniformf("u_fogColor", C.FOG_COLOR);
         shaderProgram.setUniformMatrix("u_projectMatrix", camera.projection);
         shaderProgram.setUniformMatrix("u_viewMatrix", camera.view);
