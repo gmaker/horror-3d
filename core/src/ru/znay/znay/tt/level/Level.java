@@ -41,11 +41,15 @@ public class Level {
     };
 
     private static int[] floorSprite = {
-            1 * 8,
-            1 * 8 + 3
+            6 * 8,
+            6 * 8 + 3,
+            6 * 8 + 3,
+            6 * 8 + 3
     };
     private static int[] ceilSprite = {
             -1,
+            2 * 8,
+            2 * 8,
             2 * 8
     };
     private static Level[] levels = new Level[floorSprite.length];

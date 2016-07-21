@@ -16,10 +16,10 @@ public class StairBlock extends Block {
         super(level, xt, zt);
         this.nextLevel = level.level + nextLevel;
         if (down) {
-            floorSprite = 1 * 8 + 4;
+            floorSprite = 6 * 8 + 4;
             sprites.add(new Sprite3D(0, 0, 0, 1 * 16, 4 * 16, 16, 16));
         } else {
-            ceilSprite = 1 * 8 + 4;
+            ceilSprite = 6 * 8 + 4;
             sprites.add(new Sprite3D(0, 0, 0, 2 * 16, 4 * 16, 16, 16));
         }
     }
