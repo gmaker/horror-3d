@@ -13,8 +13,8 @@ import ru.znay.znay.tt.particle.Particle;
 public class FireBlock extends Block {
     public PointLight pointLight;
 
-    public FireBlock(int xt, int zt) {
-        super(xt, zt);
+    public FireBlock(Level level, int xt, int zt) {
+        super(level, xt, zt);
         sprites.add(new Sprite3D(0, 0, 0, 0, 5 * 16, 16, 16));
         pointLight = new PointLight(new Vector3(xt * 16, 0, zt * 16), 64.0f);
     }

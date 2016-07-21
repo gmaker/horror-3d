@@ -1,16 +1,21 @@
 package ru.znay.znay.tt.level;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.math.Vector3;
+import ru.znay.znay.tt.GoldMiner;
 import ru.znay.znay.tt.entity.Enemy;
 import ru.znay.znay.tt.entity.Entity;
+import ru.znay.znay.tt.entity.Player;
 import ru.znay.znay.tt.entity.ore.Ore;
 import ru.znay.znay.tt.gfx.*;
 import ru.znay.znay.tt.gfx.light.Light;
 import ru.znay.znay.tt.level.block.*;
 import ru.znay.znay.tt.particle.Particle;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,39 +25,120 @@ import java.util.List;
 public class Level {
     public final int w;
     public final int h;
+    public final GoldMiner game;
     public Block[] blocks;
-    public Block solidWall = new SolidBlock(-1, -1);
+    public Block solidWall = new WaterBlock(null, -1, -1);
     public List<Entity> entities = new ArrayList<Entity>();
     public List<Light> lights = new ArrayList<Light>();
     public List<Particle> particles = new ArrayList<Particle>();
 
-    public int floorSprite = 1 * 8;
-    public int ceilSprite = -1;
+
+    private static Vector3[] colors = {
+            new Vector3(1.0f, 1.0f, 1.0f),
+            new Vector3(1f, 0.9f, 0.9f),
+            new Vector3(1f, 0.5f, 0.5f),
+            new Vector3(1f, 0.2f, 0.2f),
+    };
+
+    private static int[] floorSprite = {
+            1 * 8,
+            1 * 8 + 3
+    };
+    private static int[] ceilSprite = {
+            -1,
+            2 * 8
+    };
+    private static Level[] levels = new Level[floorSprite.length];
+
 
     public int tickTime = 0;
     public int xSpawn;
     public int ySpawn;
+    public final int level;
 
-    public Level(Pixmap pixmap) {
-        this.w = pixmap.getWidth();
-        this.h = pixmap.getHeight();
+    private Level(GoldMiner game, int w, int h, int level) {
+        this.game = game;
+        this.w = w;
+        this.h = h;
+        this.level = level;
         this.blocks = new Block[w * h];
+    }
+
+    public static Level loadLevel(GoldMiner game, int level) {
+        if (Level.levels[Math.abs(level)] != null) {
+            return Level.levels[Math.abs(level)];
+        }
+        Pixmap pixmap = Art.i.getPixmap("levels/" + level + ".png");
+        int w = pixmap.getWidth();
+        int h = pixmap.getHeight();
+        Level result = new Level(game, w, h, level);
+
+        int floorSprite = Level.floorSprite[Math.abs(level)];
+        int ceilSprite = Level.ceilSprite[Math.abs(level)];
+
         for (int z = 0; z < h; z++) {
             for (int x = 0; x < w; x++) {
                 int col = (pixmap.getPixel(x, z) >> 8) & 0xFFFFFF;
-                Block b = getBlock(x, z, col);
+                Block b = result.createBlock(x, z, col);
                 if (b.floorSprite == -1) b.floorSprite = floorSprite;
                 if (b.ceilSprite == -1) b.ceilSprite = ceilSprite;
-                blocks[x + z * w] = b;
+                result.blocks[x + z * w] = b;
             }
         }
 
         for (int z = 0; z < h; z++) {
             for (int x = 0; x < w; x++) {
                 int col = (pixmap.getPixel(x, z) >> 8) & 0xFFFFFF;
-                decorateBlock(x, z, col, getBlock(x, z));
+                result.decorateBlock(x, z, col, result.getBlock(x, z));
             }
         }
+        result.loadDecoration();
+        Level.levels[Math.abs(level)] = result;
+        return result;
+    }
+
+    public void removeEntityImmediately(Player player) {
+        entities.remove(player);
+        getBlock(player.xTileO, player.zTileO).removeEntity(player);
+    }
+
+    public void saveDecoration() {
+        try {
+            byte[] data = new byte[w * h];
+            for (int y = 0; y < h; y++) {
+                for (int x = 0; x < w; x++) {
+                    int i = x + y * w;
+                    int sprite = -1;
+                    if (blocks[i] instanceof WallBlock) {
+                        sprite = blocks[i].sprite;
+                    }
+                    data[i] = (byte) sprite;
+                }
+            }
+            FileHandle dataFolder = Gdx.files.internal("data");
+            FileHandle dataFile = Gdx.files.absolute(dataFolder.file().getAbsolutePath() + File.separator + "decoration_" + level + ".dat");
+            dataFile.writeBytes(data, 0, data.length, false);
+        } catch (Throwable e) {
+            System.err.println(e);
+        }
+    }
+
+    public void loadDecoration() {
+        try {
+            FileHandle dataFile = Gdx.files.internal("data/decoration_" + level + ".dat");
+            byte[] data = dataFile.readBytes();
+            for (int y = 0; y < h; y++) {
+                for (int x = 0; x < w; x++) {
+                    int i = x + y * w;
+                    if (data[i] >= 0 && blocks[i] instanceof WallBlock) {
+                        blocks[i].sprite = (int) data[i];
+                    }
+                }
+            }
+        } catch (Throwable e) {
+            System.err.println(e);
+        }
+
     }
 
     public void decorateBlock(int x, int z, int col, Block b) {
@@ -65,13 +151,16 @@ public class Level {
         if (col == 0x808080) addEntity(new Ore(x * 16, 0, z * 16));
     }
 
-    public Block getBlock(int x, int z, int col) {
-        if (col == 0x00FF00) return new GrassBlock(x, z);
-        if (col == 0xFFFFFF) return new WallBlock(x, z);
-        if (col == 0x008C00) return new TreeBlock(x, z);
-        if (col == 0xFF7921) return new TorchBlock(x, z);
-        if (col == 0x821C1C) return new FireBlock(x, z);
-        return new Block(x, z);
+    public Block createBlock(int x, int z, int col) {
+        if (col == 0x00FF00) return new GrassBlock(this, x, z);
+        if (col == 0xFFFFFF) return new WallBlock(this, x, z);
+        if (col == 0x008C00) return new TreeBlock(this, x, z);
+        if (col == 0xFF7921) return new TorchBlock(this, x, z);
+        if (col == 0x821C1C) return new FireBlock(this, x, z);
+        if ((col & 0xFF00FF) == 0xFF00FF && ((col >> 8) & 0xFF) < 0x80) return new StairBlock(this, x, z, false, (col >> 8) & 0xff);
+        if ((col & 0xFF00FF) == 0xFF00FF && ((col >> 8) & 0xFF) > 0x80) return new StairBlock(this, x, z, true, 128 - ((col >> 8) & 0xff));
+        if (col == 0x00A08D) return new WaterBlock(this, x, z);
+        return new Block(this, x, z);
     }
 
     public void addEntity(Entity e) {
@@ -134,8 +223,9 @@ public class Level {
     }
 
     private void addBlockToRender(int xb, int zb, Block c, Block e, Block s, PlaneBatch pb) {
+        Vector3 levelColor = colors[Math.abs(level)];
         if (c.solidRender) {
-            pb.setColor(c.r, c.g, c.b, c.a);
+            pb.setColor(c.r * levelColor.x, c.g * levelColor.y, c.b * levelColor.z, c.a);
             int sx = (c.sprite % 8) * 16;
             int sy = (c.sprite / 8) * 16;
             if (!e.solidRender) {
@@ -146,19 +236,19 @@ public class Level {
             }
         } else {
             if (e.solidRender) {
-                pb.setColor(e.r, e.g, e.b, e.a);
+                pb.setColor(e.r * levelColor.x, e.g * levelColor.y, e.b * levelColor.z, e.a);
                 int sx = (e.sprite % 8) * 16;
                 int sy = (e.sprite / 8) * 16;
                 pb.addPlane(xb * 16, 0, zb * 16, 16, ModelData.rawDataRightIn, sx, sy, 16, 16);
             }
             if (s.solidRender) {
-                pb.setColor(s.r, s.g, s.b, s.a);
+                pb.setColor(s.r * levelColor.x, s.g * levelColor.y, s.b * levelColor.z, s.a);
                 int sx = (s.sprite % 8) * 16;
                 int sy = (s.sprite / 8) * 16;
                 pb.addPlane(xb * 16, 0, zb * 16, 16, ModelData.rawDataFrontIn, sx, sy, 16, 16);
             }
 
-            pb.setColor(c.r, c.g, c.b, c.a);
+            pb.setColor(c.r * levelColor.x, c.g * levelColor.y, c.b * levelColor.z, c.a);
             if (c.floorSprite != -1) {
                 int sx = (c.floorSprite % 8) * 16;
                 int sy = (c.floorSprite / 8) * 16;
@@ -203,6 +293,22 @@ public class Level {
         for (int y = 0; y < h; y++) {
             for (int x = 0; x < w; x++) {
                 blocks[x + y * w].tick(this);
+            }
+        }
+    }
+
+    public void switchLevel(int nextLevel) {
+        game.switchLevel(level, nextLevel);
+    }
+
+    public void findSpawn(int level) {
+        for (int y = 0; y < h; y++) {
+            for (int x = 0; x < w; x++) {
+                Block b = blocks[x + y * w];
+                if (b instanceof StairBlock && ((StairBlock) b).nextLevel == level) {
+                    xSpawn = x;
+                    ySpawn = y;
+                }
             }
         }
     }

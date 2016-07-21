@@ -12,6 +12,6 @@ public class C {
 
     public static final int DEPTH_MAP_SIZE = WIDTH;
 
-    public static Color FOG_COLOR = new Color(0.0f, 0.0f, 0.0f, 1.0f);
+    public static Color FOG_COLOR = new Color(0.0f, 0.0f, 0.1f, 1.0f);
 
 }

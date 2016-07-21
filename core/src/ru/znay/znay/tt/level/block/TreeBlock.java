@@ -1,13 +1,14 @@
 package ru.znay.znay.tt.level.block;
 
 import ru.znay.znay.tt.gfx.Sprite3D;
+import ru.znay.znay.tt.level.Level;
 
 /**
  * Created by admin on 01.07.2016.
  */
 public class TreeBlock extends GrassBlock {
-    public TreeBlock(int xt, int zt) {
-        super(xt, zt);
+    public TreeBlock(Level level, int xt, int zt) {
+        super(level, xt, zt);
         int c = random.nextInt(3) + 1;
         for (int i = 0; i < c; i++) {
             float x = ((random.nextFloat() - 0.5f)) * 16.0f;

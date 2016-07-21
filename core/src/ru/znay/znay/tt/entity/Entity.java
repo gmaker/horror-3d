@@ -1,16 +1,19 @@
 package ru.znay.znay.tt.entity;
 
+import ru.znay.znay.tt.entity.item.Item;
 import ru.znay.znay.tt.gfx.Sprite3D;
 import ru.znay.znay.tt.level.Level;
 import ru.znay.znay.tt.level.block.Block;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by admin on 28.06.2016.
  */
 public class Entity {
+    public static final Random random = new Random();
     public List<Sprite3D> sprites = new ArrayList<Sprite3D>();
     public float x, y, z;
     public float xa = 0, ya = 0, za = 0;
@@ -91,7 +94,7 @@ public class Entity {
 
     }
 
-    private boolean blocks(Entity entity, float x2, float z2, float r2) {
+    public boolean blocks(Entity entity, float x2, float z2, float r2) {
         if (x + r <= x2 - r2) return false;
         if (x - r >= x2 + r2) return false;
 
@@ -110,8 +113,8 @@ public class Entity {
     }
 
     public void updatePos() {
-        int xTile = (int) (x / 16);
-        int zTile = (int) (z / 16);
+        int xTile = (int) ((x + 8.0f) / 16.0f);
+        int zTile = (int) ((z + 8.0f) / 16.0f);
 
         if (xTile != xTileO || zTile != zTileO) {
             level.getBlock(xTileO, zTileO).removeEntity(this);
@@ -124,5 +127,9 @@ public class Entity {
     public void remove() {
         level.getBlock(xTileO, zTileO).removeEntity(this);
         removed = true;
+    }
+
+    public void interactWith(Entity e, Item item, float xx, int yy, float zz) {
+
     }
 }

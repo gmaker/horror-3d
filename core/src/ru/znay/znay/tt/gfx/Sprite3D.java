@@ -8,8 +8,8 @@ import com.badlogic.gdx.graphics.Camera;
 public class Sprite3D {
     public float x, y, z;
     public float r = 1.0f, g = 1.0f, b = 1.0f, a = 1.0f;
-    private float sx, sy, sw, sh;
-    private float xo, yo;
+    public float sx, sy, sw, sh;
+    public float xo, yo;
     public boolean removed = false;
     public float scale = 1.0f;
 

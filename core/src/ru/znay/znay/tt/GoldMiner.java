@@ -15,6 +15,7 @@ import ru.znay.znay.tt.gfx.PlaneBatch;
 import ru.znay.znay.tt.gfx.SpriteBatch3D;
 import ru.znay.znay.tt.gfx.light.Light;
 import ru.znay.znay.tt.level.Level;
+import ru.znay.znay.tt.level.block.StairBlock;
 import ru.znay.znay.tt.tool.R;
 
 import java.util.List;
@@ -32,7 +33,7 @@ public class GoldMiner extends Game {
     private double iNsPerSec = 60.0 / 1000000000.0;
     private Player player;
     private Viewport viewport;
-
+    private int saveTime = 0;
 
     public void create() {
         sceneBuffer = R.i.register(new FrameBuffer(Pixmap.Format.RGBA8888, C.WIDTH, C.HEIGHT, true));
@@ -60,8 +61,20 @@ public class GoldMiner extends Game {
     }
 
     public void newGame() {
-        level = new Level(Art.i.level);
+        level = Level.loadLevel(this, 0);
         player = new Player(level.xSpawn * 16, 0, level.ySpawn * 16);
+        level.addEntity(player);
+        updateCam(player);
+    }
+
+    public void switchLevel(int currentLevel, int nextLevel) {
+        level.removeEntityImmediately(player);
+        level = Level.loadLevel(this, nextLevel);
+        level.findSpawn(currentLevel);
+        player.x = level.xSpawn * 16;
+        player.y = 0;
+        player.z = level.ySpawn * 16;
+        ((StairBlock) level.getBlock(level.xSpawn, level.ySpawn)).wait = true;
         level.addEntity(player);
         updateCam(player);
     }
@@ -77,6 +90,16 @@ public class GoldMiner extends Game {
         viewport.update(width, height, false);
     }
 
+    public void saveDecoration() {
+        if (saveTime > 0) return;
+        saveTime = 60;
+        level.saveDecoration();
+    }
+
+    public void loadDecoration() {
+        level.loadDecoration();
+    }
+
     public void tick() {
         tickTime++;
 
@@ -85,6 +108,13 @@ public class GoldMiner extends Game {
         }
 
         level.tick();
+        if (saveTime > 0) saveTime--;
+        if (Gdx.input.isKeyPressed(Input.Keys.F5)) {
+            saveDecoration();
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.F8)) {
+            loadDecoration();
+        }
 
         player.tick(
                 Gdx.input.isKeyPressed(Input.Keys.W),
@@ -117,6 +147,7 @@ public class GoldMiner extends Game {
         renderLights(lights, pb);
         renderShadows(lights, pb);
         sceneBuffer.begin();
+        Gdx.gl.glViewport(0, 0, sceneBuffer.getWidth(), sceneBuffer.getHeight());
         renderScene(pb, sb);
 
         pb.reset();
@@ -140,7 +171,7 @@ public class GoldMiner extends Game {
     }
 
     private void renderGui(SpriteBatch sb2d) {
-        Art.i.font.draw(sb2d, "FPS: " + Gdx.graphics.getFramesPerSecond(), 1, 1);
+        //Art.i.font.draw(sb2d, "FPS: " + Gdx.graphics.getFramesPerSecond(), 1, 1);
     }
 
     private void renderPlayerItem(SpriteBatch3D sb) {
@@ -175,7 +206,6 @@ public class GoldMiner extends Game {
     }
 
     private void renderScene(PlaneBatch pb, SpriteBatch3D sb) {
-        Gdx.gl.glViewport(0, 0, sceneBuffer.getWidth(), sceneBuffer.getHeight());
         Gdx.gl.glClearColor(C.FOG_COLOR.r, C.FOG_COLOR.g, C.FOG_COLOR.b, 1.0f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT /*| (Gdx.graphics.getBufferFormat().coverageSampling ? GL20.GL_COVERAGE_BUFFER_BIT_NV : 0)*/);
 

@@ -6,7 +6,6 @@ import ru.znay.znay.tt.gfx.light.PointLight;
 import ru.znay.znay.tt.level.Level;
 import ru.znay.znay.tt.particle.FireParticle;
 import ru.znay.znay.tt.particle.Particle;
-import ru.znay.znay.tt.particle.SmokeParticle;
 
 import java.util.Random;
 
@@ -17,8 +16,8 @@ public class TorchBlock extends Block {
     public Sprite3D torchSprite;
     public PointLight pointLight;
 
-    public TorchBlock(int xt, int zt) {
-        super(xt, zt);
+    public TorchBlock(Level level, int xt, int zt) {
+        super(level, xt, zt);
         torchSprite = new Sprite3D(0, 0, 0, 0, 4 * 16, 16, 16);
         sprites.add(torchSprite);
         pointLight = new PointLight(new Vector3(xt * 16, +4.0f, zt * 16), 50.0f);

@@ -1,6 +1,8 @@
 package ru.znay.znay.tt.level.block;
 
 import ru.znay.znay.tt.entity.Entity;
+import ru.znay.znay.tt.entity.Player;
+import ru.znay.znay.tt.entity.item.Item;
 import ru.znay.znay.tt.gfx.Sprite3D;
 import ru.znay.znay.tt.level.Level;
 import ru.znay.znay.tt.particle.Particle;
@@ -17,7 +19,6 @@ public class Block {
     public List<Sprite3D> sprites = new ArrayList<Sprite3D>();
     public List<Entity> entities = new ArrayList<Entity>();
     public List<Particle> particles = new ArrayList<Particle>();
-    public boolean blockMotion = false;
     public boolean solidRender = false;
     public int sprite = -1;
     public int floorSprite = -1;
@@ -28,10 +29,12 @@ public class Block {
     public float a = 1.0f;
     public final int xt;
     public final int zt;
+    public final Level level;
 
-    public Block(int xt, int zt) {
+    public Block(Level level, int xt, int zt) {
         this.xt = xt;
         this.zt = zt;
+        this.level = level;
     }
 
     public void addEntity(Entity e) {
@@ -66,5 +69,9 @@ public class Block {
 
     public void addParticle(Particle p) {
         particles.add(p);
+    }
+
+    public void interactWith(Player player, Item item, float xx, int yy, float zz) {
+
     }
 }

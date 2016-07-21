@@ -4,12 +4,12 @@ import ru.znay.znay.tt.entity.Entity;
 import ru.znay.znay.tt.level.Level;
 
 /**
- * Created by admin on 28.06.2016.
+ * Created by admin on 21.07.2016.
  */
-public abstract class SolidBlock extends Block {
-    public SolidBlock(Level level, int xt, int zt) {
+public class WaterBlock extends Block {
+    public WaterBlock(Level level, int xt, int zt) {
         super(level, xt, zt);
-        solidRender = true;
+        floorSprite = 5 + 1 * 8;
     }
 
     @Override

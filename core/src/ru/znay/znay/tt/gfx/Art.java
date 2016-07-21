@@ -17,7 +17,6 @@ public class Art {
     public Texture dithering;
     public Texture sheet;
     public Texture blocks;
-    public Pixmap level;
     public Shader billboardShader;
     public Shader planeShader;
     public Shader lightShader;
@@ -31,11 +30,7 @@ public class Art {
     public static Art i = new Art();
 
     private Art() {
-
         initShaders();
-        Texture levelTexture = R.i.register(new Texture(Gdx.files.internal("level.png")));
-        levelTexture.getTextureData().prepare();;
-        level = R.i.register(levelTexture.getTextureData().consumePixmap());
         sheet = R.i.register(new Texture(Gdx.files.internal("sheet.png")));
         blocks = R.i.register(new Texture(Gdx.files.internal("blocks.png")));
         dithering = R.i.register(createDitheringTexture());
@@ -72,24 +67,30 @@ public class Art {
     private void initShaders() {
         ShaderProgram.pedantic = false;
 
-        billboardShader = new BillboardShader((ShaderProgram)R.i.register(new ShaderProgram(Gdx.files.internal("shaders/billboard.vert"), Gdx.files.internal("shaders/billboard.frag"))));
+        billboardShader = new BillboardShader((ShaderProgram) R.i.register(new ShaderProgram(Gdx.files.internal("shaders/billboard.vert"), Gdx.files.internal("shaders/billboard.frag"))));
         if (!billboardShader.shaderProgram.isCompiled()) {
             System.out.println(billboardShader.shaderProgram.getLog());
         }
 
-        planeShader = new PlaneShader((ShaderProgram)R.i.register(new ShaderProgram(Gdx.files.internal("shaders/plane.vert"), Gdx.files.internal("shaders/plane.frag"))));
+        planeShader = new PlaneShader((ShaderProgram) R.i.register(new ShaderProgram(Gdx.files.internal("shaders/plane.vert"), Gdx.files.internal("shaders/plane.frag"))));
         if (!planeShader.shaderProgram.isCompiled()) {
             System.out.println(planeShader.shaderProgram.getLog());
         }
 
-        lightShader = new LightShader((ShaderProgram)R.i.register(new ShaderProgram(Gdx.files.internal("shaders/light.vert"), Gdx.files.internal("shaders/light.frag"))));
+        lightShader = new LightShader((ShaderProgram) R.i.register(new ShaderProgram(Gdx.files.internal("shaders/light.vert"), Gdx.files.internal("shaders/light.frag"))));
         if (!lightShader.shaderProgram.isCompiled()) {
             System.out.println(lightShader.shaderProgram.getLog());
         }
 
-        shadowShader = new ShadowShader((ShaderProgram)R.i.register(new ShaderProgram(Gdx.files.internal("shaders/shadow.vert"), Gdx.files.internal("shaders/shadow.frag"))));
+        shadowShader = new ShadowShader((ShaderProgram) R.i.register(new ShaderProgram(Gdx.files.internal("shaders/shadow.vert"), Gdx.files.internal("shaders/shadow.frag"))));
         if (!shadowShader.shaderProgram.isCompiled()) {
             System.out.println(shadowShader.shaderProgram.getLog());
         }
+    }
+
+    public Pixmap getPixmap(String filePath) {
+        Texture levelTexture = R.i.register(new Texture(Gdx.files.internal(filePath)));
+        levelTexture.getTextureData().prepare();
+        return R.i.register(levelTexture.getTextureData().consumePixmap());
     }
 }
