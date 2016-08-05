@@ -8,6 +8,7 @@ uniform vec4 u_fogColor;
 uniform sampler2D u_shadows;
 uniform float u_screenWidth;
 uniform float u_screenHeight;
+uniform float u_illumination;
 
 varying vec4 v_col;
 varying vec2 v_uv;
@@ -22,7 +23,8 @@ void main() {
 	c.y /= u_screenHeight;
 	float light = texture2D(u_shadows, c).a;
 
-    float br = clamp(16.0 / dot(v_pos.xyz, v_pos.xyz) * 16.0 + light, 0.0, 1.0);
+	float h = 64.0 * u_illumination;
+    float br = clamp(h / dot(v_pos.xyz, v_pos.xyz) * h + light, 0.0, 1.0);
 
 	float dither = texture2D(u_dithering, mod(gl_FragCoord.xy / 1.0, 4.0) / 4.0).a * 16.0;
 	if (br < dither) {

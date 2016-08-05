@@ -24,6 +24,7 @@ public class GoldMiner extends Game {
 
     private PerspectiveCamera camera;
     private OrthographicCamera scaledCamera;
+    private OrthographicCamera guiCamera;
     private FrameBuffer sceneBuffer;
 
     private int tickTime = 0;
@@ -41,7 +42,7 @@ public class GoldMiner extends Game {
 
         camera = new PerspectiveCamera(70.0f, C.WIDTH, C.HEIGHT);
         camera.near = 1f;
-        camera.far = 300f;
+        camera.far = 2000f;
         camera.update();
 
         scaledCamera = new OrthographicCamera();
@@ -50,6 +51,11 @@ public class GoldMiner extends Game {
         scaledCamera.update();
 
         viewport = new ExtendViewport(C.WIDTH, C.HEIGHT, scaledCamera);
+
+        guiCamera = new OrthographicCamera();
+        guiCamera.position.set(C.WIDTH / 2.0f, C.HEIGHT / 2.0f, 0);
+        guiCamera.setToOrtho(true, C.WIDTH, C.HEIGHT);
+        guiCamera.update();
 
         Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
         Gdx.gl.glDepthMask(true);
@@ -154,6 +160,8 @@ public class GoldMiner extends Game {
         sb.reset();
 
         renderPlayerItem(sb);
+        renderGui();
+
         sceneBuffer.end();
 
         scaledCamera.update();
@@ -165,13 +173,33 @@ public class GoldMiner extends Game {
         sb2d.setProjectionMatrix(scaledCamera.combined);
         sb2d.begin();
         sb2d.draw(sceneBuffer.getColorBufferTexture(), 0, 0);
-        renderGui(sb2d);
         sb2d.end();
         Gdx.gl.glEnable(GL20.GL_CULL_FACE);
     }
 
-    private void renderGui(SpriteBatch sb2d) {
-        //Art.i.font.draw(sb2d, "FPS: " + Gdx.graphics.getFramesPerSecond(), 1, 1);
+    private void renderGui() {
+        guiCamera.update();
+        Gdx.gl.glDisable(GL20.GL_CULL_FACE);
+
+        SpriteBatch sb2d = Art.i.spriteBatch2D;
+        sb2d.setProjectionMatrix(guiCamera.combined);
+        sb2d.begin();
+
+
+        int x = 2;
+        int y = 2;
+
+        Art.i.drawString(sb2d, "HP", x, y, Color.GOLD);
+        Art.i.drawProgressBar(sb2d, x + 16, y, 6, C.BAR_HP_COLOR, C.BAR_EMPTY_COLOR, player.health / (float) player.maxHealth, 5);
+
+        y += 6;
+
+        Art.i.drawString(sb2d, "ST", x, y, Color.GOLD);
+        Art.i.drawProgressBar(sb2d, x + 16, y, 6, C.BAR_ST_COLOR, C.BAR_EMPTY_COLOR, player.stamina / (float) player.maxStamina, 5);
+
+
+        sb2d.end();
+        Gdx.gl.glEnable(GL20.GL_CULL_FACE);
     }
 
     private void renderPlayerItem(SpriteBatch3D sb) {
@@ -217,11 +245,15 @@ public class GoldMiner extends Game {
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
+
+
         pb.begin(Art.i.planeShader, camera);
+        level.applyToShader(Art.i.planeShader);
         pb.render();
         pb.end();
 
         sb.begin(Art.i.billboardShader, camera);
+        level.applyToShader(Art.i.billboardShader);
         sb.render();
         sb.end();
     }

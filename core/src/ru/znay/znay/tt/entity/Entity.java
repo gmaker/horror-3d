@@ -129,7 +129,7 @@ public class Entity {
         removed = true;
     }
 
-    public void interactWith(Entity e, Item item, float xx, int yy, float zz) {
+    public void interactWith(Player player, Item item, float xx, int yy, float zz) {
 
     }
 }

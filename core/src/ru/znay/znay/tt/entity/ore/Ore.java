@@ -1,6 +1,7 @@
 package ru.znay.znay.tt.entity.ore;
 
 import ru.znay.znay.tt.entity.Entity;
+import ru.znay.znay.tt.entity.Player;
 import ru.znay.znay.tt.entity.item.Item;
 import ru.znay.znay.tt.gfx.Sprite3D;
 import ru.znay.znay.tt.particle.CrashParticle;
@@ -22,9 +23,9 @@ public class Ore extends Entity {
         }
     }
 
-    public void interactWith(Entity e, Item item, float xx, int yy, float zz) {
+    public void interactWith(Player player, Item item, float xx, int yy, float zz) {
         if (removed) return;
-        if (item == Item.pick) {
+        if (item == Item.pick && player.payStamina(4)) {
             for (int j = 0; j < 10; j++) {
                 level.addParticle(new SparkParticle(xx, yy, zz));
             }
@@ -43,6 +44,7 @@ public class Ore extends Entity {
                 }
                 spriteLife = 5;
             }
+
         }
     }
 }

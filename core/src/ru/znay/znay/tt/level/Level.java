@@ -12,6 +12,7 @@ import ru.znay.znay.tt.entity.Player;
 import ru.znay.znay.tt.entity.ore.Ore;
 import ru.znay.znay.tt.gfx.*;
 import ru.znay.znay.tt.gfx.light.Light;
+import ru.znay.znay.tt.gfx.shader.Shader;
 import ru.znay.znay.tt.level.block.*;
 import ru.znay.znay.tt.particle.Particle;
 
@@ -26,12 +27,13 @@ public class Level {
     public final int w;
     public final int h;
     public final GoldMiner game;
+    public final float illumination;
     public Block[] blocks;
     public Block solidWall = new WaterBlock(null, -1, -1);
     public List<Entity> entities = new ArrayList<Entity>();
     public List<Light> lights = new ArrayList<Light>();
     public List<Particle> particles = new ArrayList<Particle>();
-
+    public Player player;
 
     private static Vector3[] colors = {
             new Vector3(1.0f, 1.0f, 1.0f),
@@ -66,6 +68,7 @@ public class Level {
         this.h = h;
         this.level = level;
         this.blocks = new Block[w * h];
+        this.illumination = level >= 0 ? 1.0f : 1.0f / (Math.abs(level) + 1);
     }
 
     public static Level loadLevel(GoldMiner game, int level) {
@@ -161,8 +164,10 @@ public class Level {
         if (col == 0x008C00) return new TreeBlock(this, x, z);
         if (col == 0xFF7921) return new TorchBlock(this, x, z);
         if (col == 0x821C1C) return new FireBlock(this, x, z);
-        if ((col & 0xFF00FF) == 0xFF00FF && ((col >> 8) & 0xFF) < 0x80) return new StairBlock(this, x, z, false, (col >> 8) & 0xff);
-        if ((col & 0xFF00FF) == 0xFF00FF && ((col >> 8) & 0xFF) > 0x80) return new StairBlock(this, x, z, true, 128 - ((col >> 8) & 0xff));
+        if ((col & 0xFF00FF) == 0xFF00FF && ((col >> 8) & 0xFF) < 0x80)
+            return new StairBlock(this, x, z, false, (col >> 8) & 0xff);
+        if ((col & 0xFF00FF) == 0xFF00FF && ((col >> 8) & 0xFF) > 0x80)
+            return new StairBlock(this, x, z, true, 128 - ((col >> 8) & 0xff));
         if (col == 0x00A08D) return new WaterBlock(this, x, z);
         return new Block(this, x, z);
     }
@@ -171,6 +176,9 @@ public class Level {
         entities.add(e);
         e.init(this);
         e.updatePos();
+        if (e instanceof Player) {
+            this.player = (Player) e;
+        }
     }
 
     public void addParticle(Particle p) {
@@ -315,5 +323,9 @@ public class Level {
                 }
             }
         }
+    }
+
+    public void applyToShader(Shader shader) {
+        shader.shaderProgram.setUniformf("u_illumination", illumination);
     }
 }

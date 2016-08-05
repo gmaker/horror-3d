@@ -9,9 +9,13 @@ public class Mob extends Entity {
     public float rotSpeed = 0.02f;
     public float walkSpeed = 0.23f;
     public Order order = Order.idle;
+    public int health;
+    public int maxHealth;
 
     public Mob(float x, float y, float z) {
         super(x, y, z);
+        health = maxHealth = 10;
+        health -= 3;
     }
 
     public final void setOrder(Order order) {

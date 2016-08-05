@@ -23,10 +23,12 @@ public class FireBlock extends Block {
     public void tick(Level level) {
         super.tick(level);
         if (level.tickTime % 2 == 0) {
-            float x = (random.nextFloat() - 0.5f) * 5.0f;
-            float z = (random.nextFloat() - 0.5f) * 5.0f;
-            Particle p = new FireParticle(xt * 16 + x, -6, zt * 16 + z);
-            level.addParticle(p);
+            for (int i = 0; i < random.nextInt(5); i++) {
+                float x = (random.nextFloat() - 0.5f) * 4.0f;
+                float z = (random.nextFloat() - 0.5f) * 4.0f;
+                Particle p = new FireParticle(xt * 16 + x, -6, zt * 16 + z);
+                level.addParticle(p);
+            }
         }
         if (level.tickTime % 60 == 0) {
             pointLight.needsUpdate = true;

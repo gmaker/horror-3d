@@ -19,10 +19,15 @@ public class Player extends Mob {
     public float turnBob = 0.0f;
     public Item item = Item.pick;
     public int itemUseTime = 0;
+    public int stamina;
+    public int staminaRecharge;
+    public int staminaRechargeDelay;
+    public int maxStamina = 10;
 
     public Player(float x, float y, float z) {
         super(x, y, z);
         rot = (float) -Math.PI / 2.0f;
+        stamina = maxStamina;
     }
 
     public void tick(boolean up, boolean down, boolean left, boolean right, boolean turnLeft, boolean turnRight) {
@@ -35,6 +40,22 @@ public class Player extends Mob {
                     interact(x - (float) Math.sin(rot) * 8.0f, -4 - random.nextInt(3), z - (float) Math.cos(rot) * 8.0f);
                     item.animation.stop();
                 }
+            }
+        }
+
+        if (stamina <= 0 && staminaRechargeDelay == 0 && staminaRecharge == 0) {
+            staminaRechargeDelay = 40;
+        }
+
+        if (staminaRechargeDelay > 0) {
+            staminaRechargeDelay--;
+        }
+
+        if (staminaRechargeDelay == 0) {
+            staminaRecharge++;
+            while (staminaRecharge > 10) {
+                staminaRecharge -= 10;
+                if (stamina < maxStamina) stamina++;
             }
         }
 
@@ -56,8 +77,10 @@ public class Player extends Mob {
         xm /= dd;
         zm /= dd;
 
-        xa += (xm * Math.cos(rot) + zm * Math.sin(rot)) * walkSpeed;
-        za += (zm * Math.cos(rot) - xm * Math.sin(rot)) * walkSpeed;
+        if (staminaRechargeDelay % 2 == 0) {
+            xa += (xm * Math.cos(rot) + zm * Math.sin(rot)) * walkSpeed;
+            za += (zm * Math.cos(rot) - xm * Math.sin(rot)) * walkSpeed;
+        }
 
         move();
 
@@ -94,8 +117,17 @@ public class Player extends Mob {
     }
 
     public void use() {
+        if (stamina == 0) return;
         if (item == null) return;
         if (itemUseTime > 0) return;
+        stamina--;
+        staminaRecharge = 0;
         itemUseTime = item.animation.time * item.animation.frames;
+    }
+
+    public boolean payStamina(int cost) {
+        if (cost > stamina) return false;
+        stamina -= cost;
+        return true;
     }
 }
