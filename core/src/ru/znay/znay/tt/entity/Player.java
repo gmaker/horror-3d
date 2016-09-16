@@ -28,6 +28,7 @@ public class Player extends Mob {
         super(x, y, z);
         rot = (float) -Math.PI / 2.0f;
         stamina = maxStamina;
+        spawnTime = 0;
     }
 
     public void tick(boolean up, boolean down, boolean left, boolean right, boolean turnLeft, boolean turnRight) {

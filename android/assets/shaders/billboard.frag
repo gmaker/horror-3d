@@ -16,7 +16,7 @@ varying vec4 v_pos;
 
 void main() {
 	vec4 col = texture2D(u_texture, v_uv);
-	if (col.a < 0.1) discard;
+	if (col.a < 0.001) discard;
 
 	vec2 c = gl_FragCoord.xy;
 	c.x /= u_screenWidth;
@@ -31,7 +31,7 @@ void main() {
 		br *= 0.86;
 	}
 
-	col = vec4(v_col.rgb * col.rgb * br + (1.0 - br) * u_fogColor.rgb, v_col.a);
+	col = vec4(v_col.rgb * col.rgb * br + (1.0 - br) * u_fogColor.rgb, v_col.a * col.a);
 
 	gl_FragColor = col;
 }

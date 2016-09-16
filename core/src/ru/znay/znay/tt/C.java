@@ -19,4 +19,5 @@ public class C {
     public static Color BAR_ST_COLOR = new Color(1.0f, 1.0f, 0.2f, BAR_ALPHA);
     public static Color BAR_EMPTY_COLOR = new Color(0.5f, 0.5f, 0.5f, BAR_ALPHA);
 
+    public static final int TILE_SIZE = 16;
 }

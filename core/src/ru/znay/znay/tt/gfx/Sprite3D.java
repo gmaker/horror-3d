@@ -38,11 +38,18 @@ public class Sprite3D {
         return this;
     }
 
+    public Sprite3D alpha(float a) {
+        this.a = a;
+        return this;
+    }
+
     public Sprite3D set(float sx, float sy, float sw, float sh) {
         this.sx = sx;
         this.sy = sy;
         this.sw = sw;
         this.sh = sh;
+        this.xo = -sw / 2;
+        this.yo = -sh / 2;
         return this;
     }
 

@@ -60,7 +60,13 @@ public class Block {
     }
 
     public void decorate(Level level, int x, int y) {
+        int t = 0;
+        if ((level.getBlock(x, y) instanceof WaterBlock)) t += 1;
+        if ((level.getBlock(x + 1, y) instanceof WaterBlock)) t += 2;
+        if ((level.getBlock(x, y + 1) instanceof WaterBlock)) t += 4;
+        if ((level.getBlock(x + 1, y + 1) instanceof WaterBlock)) t += 8;
 
+        floorSprite = t + (level.level == 0 ? 8 : 9) * 16;
     }
 
     public void removeParticle(Particle p) {

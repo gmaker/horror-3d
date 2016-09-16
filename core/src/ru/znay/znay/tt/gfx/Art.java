@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import ru.znay.znay.tt.gfx.light.ShadowMap;
 import ru.znay.znay.tt.gfx.shader.*;
 import ru.znay.znay.tt.tool.R;
+import ru.znay.znay.tt.tool.ScreenshotFactory;
 
 
 /**
@@ -33,6 +34,10 @@ public class Art {
     public static Art i = new Art();
 
     private Art() {
+
+    }
+
+    public void generateThings() {
         initShaders();
         sheet = R.i.register(new Texture(Gdx.files.internal("sheet.png")));
         blocks = R.i.register(new Texture(Gdx.files.internal("blocks.png")));
@@ -40,10 +45,14 @@ public class Art {
         font = R.i.register(new BitmapFont(Gdx.files.internal("fonts/font8h.fnt"), true));
         //font.getRegion().getTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
         //font.getData().setScale(0.2f);
+        shadowMap = new ShadowMap(shadowShader);
+        blocks = TextureGenerator.mergeTextures(blocks, TextureGenerator.mergeTiles(0 + 6 * 8, 5 + 6 * 8));
+        blocks = TextureGenerator.mergeTextures(blocks, TextureGenerator.mergeTiles(3 + 6 * 8, 5 + 6 * 8));
+        ScreenshotFactory.saveTexture(blocks, "G://block.png");
+
         planeBatch = R.i.register(new PlaneBatch(3500, blocks));
         spriteBatch2D = R.i.register(new SpriteBatch());
         billboardBatch = R.i.register(new SpriteBatch3D(3500, sheet));
-        shadowMap = new ShadowMap(shadowShader);
     }
 
     private Texture createDitheringTexture() {
@@ -93,8 +102,14 @@ public class Art {
 
     public Pixmap getPixmap(String filePath) {
         Texture levelTexture = R.i.register(new Texture(Gdx.files.internal(filePath)));
-        levelTexture.getTextureData().prepare();
-        return R.i.register(levelTexture.getTextureData().consumePixmap());
+        return getPixmap(levelTexture);
+    }
+
+    public Pixmap getPixmap(Texture texture) {
+        if (!texture.getTextureData().isPrepared()) {
+            texture.getTextureData().prepare();
+        }
+        return R.i.register(texture.getTextureData().consumePixmap());
     }
 
     public void drawString(SpriteBatch sb2d, String msg, int x, int y, Color color) {

@@ -13,10 +13,9 @@ public class MoveOrder extends Order {
         this.z = z;
     }
 
-
     public void tick() {
-        float xd = this.x - owner.x ;
-        float zd = this.z  - owner.z;
+        float xd = this.x - owner.x;
+        float zd = this.z - owner.z;
         float dd = (float) Math.sqrt(xd * xd + zd * zd);
         owner.xa += xd / dd * owner.walkSpeed;
         owner.za += zd / dd * owner.walkSpeed;

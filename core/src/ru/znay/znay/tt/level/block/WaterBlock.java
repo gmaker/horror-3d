@@ -9,7 +9,7 @@ import ru.znay.znay.tt.level.Level;
 public class WaterBlock extends Block {
     public WaterBlock(Level level, int xt, int zt) {
         super(level, xt, zt);
-        floorSprite = 5 + 6 * 8;
+        floorSprite = 5 + 6 * 16;
     }
 
     @Override

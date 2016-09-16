@@ -6,7 +6,7 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.math.Vector3;
 import ru.znay.znay.tt.GoldMiner;
-import ru.znay.znay.tt.entity.Enemy;
+import ru.znay.znay.tt.entity.Guard;
 import ru.znay.znay.tt.entity.Entity;
 import ru.znay.znay.tt.entity.Player;
 import ru.znay.znay.tt.entity.ore.Ore;
@@ -29,7 +29,7 @@ public class Level {
     public final GoldMiner game;
     public final float illumination;
     public Block[] blocks;
-    public Block solidWall = new WaterBlock(null, -1, -1);
+    public Block waterBlock = new WaterBlock(null, -1, -1);
     public List<Entity> entities = new ArrayList<Entity>();
     public List<Light> lights = new ArrayList<Light>();
     public List<Particle> particles = new ArrayList<Particle>();
@@ -43,16 +43,16 @@ public class Level {
     };
 
     private static int[] floorSprite = {
-            6 * 8,
-            6 * 8 + 3,
-            6 * 8 + 3,
-            6 * 8 + 3
+            6 * 16,
+            6 * 16 + 3,
+            6 * 16 + 3,
+            6 * 16 + 3
     };
     private static int[] ceilSprite = {
             -1,
-            2 * 8,
-            2 * 8,
-            2 * 8
+            2 * 16,
+            2 * 16,
+            2 * 16
     };
     private static Level[] levels = new Level[floorSprite.length];
 
@@ -99,7 +99,7 @@ public class Level {
                 result.decorateBlock(x, z, col, result.getBlock(x, z));
             }
         }
-        result.loadDecoration();
+        //result.loadDecoration();
         Level.levels[Math.abs(level)] = result;
         return result;
     }
@@ -154,7 +154,7 @@ public class Level {
             xSpawn = x;
             ySpawn = z;
         }
-        if (col == 0xFF0000) addEntity(new Enemy(x * 16, 0, z * 16));
+        if (col == 0xFF0000) addEntity(new Guard(x * 16, 0, z * 16));
         if (col == 0x808080) addEntity(new Ore(x * 16, 0, z * 16));
     }
 
@@ -213,9 +213,7 @@ public class Level {
                 }
 
                 for (Entity entity : c.entities) {
-                    for (Sprite3D sprite : entity.sprites) {
-                        sprite.addSprite(entity.x, entity.y, entity.z, camera, sb);
-                    }
+                    entity.render(camera, sb);
                 }
                 for (Sprite3D sprite : c.sprites) {
                     sprite.addSprite(xb * 16, 0, zb * 16, camera, sb);
@@ -238,8 +236,8 @@ public class Level {
         Vector3 levelColor = colors[Math.abs(level)];
         if (c.solidRender) {
             pb.setColor(c.r * levelColor.x, c.g * levelColor.y, c.b * levelColor.z, c.a);
-            int sx = (c.sprite % 8) * 16;
-            int sy = (c.sprite / 8) * 16;
+            int sx = (c.sprite % 16) * 16;
+            int sy = (c.sprite / 16) * 16;
             if (!e.solidRender) {
                 pb.addPlane(xb * 16, 0, zb * 16, 16, ModelData.rawDataRightOut, sx, sy, 16, 16);
             }
@@ -249,27 +247,27 @@ public class Level {
         } else {
             if (e.solidRender) {
                 pb.setColor(e.r * levelColor.x, e.g * levelColor.y, e.b * levelColor.z, e.a);
-                int sx = (e.sprite % 8) * 16;
-                int sy = (e.sprite / 8) * 16;
+                int sx = (e.sprite % 16) * 16;
+                int sy = (e.sprite / 16) * 16;
                 pb.addPlane(xb * 16, 0, zb * 16, 16, ModelData.rawDataRightIn, sx, sy, 16, 16);
             }
             if (s.solidRender) {
                 pb.setColor(s.r * levelColor.x, s.g * levelColor.y, s.b * levelColor.z, s.a);
-                int sx = (s.sprite % 8) * 16;
-                int sy = (s.sprite / 8) * 16;
+                int sx = (s.sprite % 16) * 16;
+                int sy = (s.sprite / 16) * 16;
                 pb.addPlane(xb * 16, 0, zb * 16, 16, ModelData.rawDataFrontIn, sx, sy, 16, 16);
             }
 
             pb.setColor(c.r * levelColor.x, c.g * levelColor.y, c.b * levelColor.z, c.a);
             if (c.floorSprite != -1) {
-                int sx = (c.floorSprite % 8) * 16;
-                int sy = (c.floorSprite / 8) * 16;
+                int sx = (c.floorSprite % 16) * 16;
+                int sy = (c.floorSprite / 16) * 16;
                 pb.addPlane(xb * 16, 0, zb * 16, 16, ModelData.rawDataBottomIn, sx, sy, 16, 16);
             }
 
             if (c.ceilSprite != -1) {
-                int sx = (c.ceilSprite % 8) * 16;
-                int sy = (c.ceilSprite / 8) * 16;
+                int sx = (c.ceilSprite % 16) * 16;
+                int sy = (c.ceilSprite / 16) * 16;
                 pb.addPlane(xb * 16, 0, zb * 16, 16, ModelData.rawDataTopIn, sx, sy, 16, 16);
             }
         }
@@ -277,7 +275,7 @@ public class Level {
 
     public Block getBlock(int xt, int zt) {
         if (xt < 0 || zt < 0 || xt >= w || zt >= h) {
-            return solidWall;
+            return waterBlock;
         }
         return blocks[xt + zt * w];
     }

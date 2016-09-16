@@ -1,7 +1,9 @@
 package ru.znay.znay.tt.entity;
 
+import com.badlogic.gdx.graphics.Camera;
 import ru.znay.znay.tt.entity.item.Item;
 import ru.znay.znay.tt.gfx.Sprite3D;
+import ru.znay.znay.tt.gfx.SpriteBatch3D;
 import ru.znay.znay.tt.level.Level;
 import ru.znay.znay.tt.level.block.Block;
 
@@ -21,6 +23,7 @@ public class Entity {
     public float rotA = 0.0f;
     public Level level;
     public float r = 4;
+    public float alpha = 1.0f;
     public boolean removed = false;
     public int xTileO = -1;
     public int zTileO = -1;
@@ -129,7 +132,20 @@ public class Entity {
         removed = true;
     }
 
+    public float distanceToSqr(Entity e) {
+        float xd = e.x - x;
+        float yd = e.y - y;
+        return xd * xd + yd * yd;
+    }
+
     public void interactWith(Player player, Item item, float xx, int yy, float zz) {
 
+    }
+
+    public void render(Camera camera, SpriteBatch3D sb) {
+        for (Sprite3D sprite : sprites) {
+            sprite.alpha(alpha);
+            sprite.addSprite(x, y, z, camera, sb);
+        }
     }
 }

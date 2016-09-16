@@ -5,6 +5,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.PixmapIO;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 import java.nio.ByteBuffer;
@@ -15,6 +16,12 @@ import java.nio.ByteBuffer;
 public class ScreenshotFactory {
 
     private static int counter = 1;
+
+    public static void saveTexture(Texture texture, String filePath) {
+        FileHandle h = Gdx.files.absolute(filePath);
+        Pixmap pixmap = texture.getTextureData().consumePixmap();
+        PixmapIO.writePNG(h, pixmap);
+    }
 
     public static void saveScreenshot(final int w, final int h, final String prefix) {
         try {

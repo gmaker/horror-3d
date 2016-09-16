@@ -24,6 +24,7 @@ public class TorchBlock extends Block {
     }
 
     public void decorate(Level level, int x, int y) {
+        super.decorate(level, x, y);
         Random random = new Random((x + y * 1000) * 341871231);
         float r = 7f;
         for (int i = 0; i < 1000; i++) {

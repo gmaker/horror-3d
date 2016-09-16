@@ -37,6 +37,7 @@ public class GoldMiner extends Game {
     private int saveTime = 0;
 
     public void create() {
+        Art.i.generateThings();
         sceneBuffer = R.i.register(new FrameBuffer(Pixmap.Format.RGBA8888, C.WIDTH, C.HEIGHT, true));
         sceneBuffer.getColorBufferTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
 

@@ -15,7 +15,7 @@ public class Ore extends Entity {
 
     public Ore(float x, float y, float z) {
         super(x, y, z);
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 1; i++) {
             float xx = (random.nextFloat() - 0.5f) * 4.0f;
             float zz = (random.nextFloat() - 0.5f) * 4.0f;
             Sprite3D sprite = new Sprite3D(xx, 0, zz, 16, 16 * 2, 16, 16);
